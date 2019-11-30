@@ -1,9 +1,9 @@
 package handlers
 
 import (
-"net/http"
+	"net/http"
 
-"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
 // Ping is simple keep-alive/ping handler

@@ -1,9 +1,16 @@
 package main
 
 import (
-    "github.com/fedoratipper/bitkiosk/server/pkg/server"
+	log "github.com/fedoratipper/bitkiosk/server/internal/logger"
+
+	"github.com/fedoratipper/bitkiosk/server/internal/orm"
+	"github.com/fedoratipper/bitkiosk/server/pkg/server"
 )
 
 func main() {
-    server.Run()
+	orm, err := orm.Factory()
+	if err != nil {
+		log.Panic(err)
+	}
+	server.Run(orm)
 }

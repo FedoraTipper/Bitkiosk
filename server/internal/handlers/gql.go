@@ -4,14 +4,17 @@ import (
 	"github.com/99designs/gqlgen/handler"
 	"github.com/fedoratipper/bitkiosk/server/internal/gql"
 	"github.com/fedoratipper/bitkiosk/server/internal/gql/resolvers"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm"
 	"github.com/gin-gonic/gin"
 )
 
 // GraphqlHandler defines the GQLGen GraphQL server handler
-func GraphqlHandler() gin.HandlerFunc {
+func GraphqlHandler(orm *orm.ORM) gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	c := gql.Config{
-		Resolvers: &resolvers.Resolver{},
+		Resolvers: &resolvers.Resolver{
+			ORM: orm, // pass in the ORM instance in the resolvers to be used
+		},
 	}
 
 	h := handler.GraphQL(gql.NewExecutableSchema(c))
@@ -21,7 +24,7 @@ func GraphqlHandler() gin.HandlerFunc {
 	}
 }
 
-// PlaygroundHandler Defines the Playground handler to expose our playground
+// PlaygroundHandler defines a handler to expose the Playground
 func PlaygroundHandler(path string) gin.HandlerFunc {
 	h := handler.Playground("Go GraphQL Server", path)
 	return func(c *gin.Context) {

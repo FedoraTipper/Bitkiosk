@@ -2,18 +2,34 @@
 
 package models
 
+import (
+	"time"
+)
+
+type AuthResponse struct {
+	TokenToStore string `json:"tokenToStore"`
+	TTL          int    `json:"ttl"`
+	RefreshToken string `json:"refreshToken"`
+}
+
 type NewUser struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
+	FirstName    string `json:"firstName"`
+	LastName     string `json:"lastName"`
+	Email        string `json:"email"`
+	Token        string `json:"token"`
+	AuthMethodID int    `json:"authMethodId"`
 }
 
 type User struct {
-	ID        int    `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Email     string `json:"email"`
-	CreatedAt int    `json:"createdAt"`
-	UpdatedAt int    `json:"updatedAt"`
+	FirstName string     `json:"firstName"`
+	LastName  string     `json:"lastName"`
+	Email     string     `json:"email"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt *time.Time `json:"updatedAt"`
+}
+
+type LoginDetails struct {
+	Identification string `json:"identification"`
+	Token          string `json:"token"`
+	AuthMethodID   int    `json:"authMethodId"`
 }

@@ -1,0 +1,4 @@
+type Mutation {
+    # Users
+    createUser(input: NewUser!): User!
+}

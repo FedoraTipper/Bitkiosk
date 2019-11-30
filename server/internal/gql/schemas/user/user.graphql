@@ -1,0 +1,17 @@
+scalar Time
+
+type User {
+    firstName: String!
+    lastName: String!
+    email: String!
+    createdAt: Time!
+    updatedAt: Time
+}
+
+input NewUser {
+    firstName: String!
+    lastName: String!
+    email: String!
+    token: String!
+    authMethodId: Int!
+}

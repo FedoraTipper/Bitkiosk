@@ -1,0 +1,6 @@
+type Query {
+    # users
+    users: [User]!
+    # authentication
+    authenticate(authDetails: loginDetails!): AuthResponse!
+}
