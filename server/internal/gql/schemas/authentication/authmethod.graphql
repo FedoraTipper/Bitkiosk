@@ -1,1 +1,5 @@
-# do nothing for now :)
+input newAuthMethod {
+    methodId: Int!
+    name: String!
+    ttl: Float
+}

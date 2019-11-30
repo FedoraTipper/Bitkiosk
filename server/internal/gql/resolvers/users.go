@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"github.com/fedoratipper/bitkiosk/server/internal/digest"
 
 	log "github.com/fedoratipper/bitkiosk/server/internal/logger"
 
@@ -32,8 +33,8 @@ func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 
 // ## Helper functions
 
-func userCreate(r *mutationResolver, input models.NewUser, ids ...uint) (*models.User, error) {
-	userDbo, err := tf.GQLInputUserToDBUser(&input, false, ids...)
+func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error) {
+	userDbo, err := tf.GQLInputUserToDBUser(&input, false)
 	if err != nil {
 		return nil, err
 	}
@@ -54,12 +55,14 @@ func userCreate(r *mutationResolver, input models.NewUser, ids ...uint) (*models
 		return nil, err
 	}
 
-	authenticationMatrixDbo := dbm.AuthenticationMatrix{UserID:userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token:input.Token}
+	digest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
 
-	db = db.Create(userDbo).First(authenticationMatrixDbo) // Create new authentication matrix for user
+	authenticationMatrixDbo := &dbm.AuthenticationMatrix{UserID:userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token:digest}
 
-	if err != nil {
-		return nil, err
+	db = db.Create(authenticationMatrixDbo).First(authenticationMatrixDbo) // Create new authentication matrix for user
+
+	if db.Error != nil {
+		return nil, db.Error
 	}
 
 	db = db.Commit()
@@ -68,7 +71,7 @@ func userCreate(r *mutationResolver, input models.NewUser, ids ...uint) (*models
 }
 
 func userUpdate(r *mutationResolver, input models.NewUser, ids ...uint) (*models.User, error) {
-	dbo, err := tf.GQLInputUserToDBUser(&input, false, ids...)
+	dbo, err := tf.GQLInputUserToDBUser(&input, false)
 	if err != nil {
 		return nil, err
 	}

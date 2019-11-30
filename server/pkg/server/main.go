@@ -40,7 +40,6 @@ func Run(orm *orm.ORM) {
 	}
 	r.POST(gqlPath, handlers.GraphqlHandler(orm))
 	log.Info("GraphQL @ " + endpoint + gqlPath)
-
 	// Run the server
 	// Inform the user where the server is listening
 	log.Info("Running @ " + endpoint)

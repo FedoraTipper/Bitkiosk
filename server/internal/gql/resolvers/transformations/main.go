@@ -20,24 +20,37 @@ func DBUserToGQLUser(i *dbm.User) (o *gql.User, err error) {
 }
 
 // GQLInputUserToDBUser transforms [user] gql input to db model
-func GQLInputUserToDBUser(i *gql.NewUser, update bool, ids ...uint) (o *dbm.User, err error) {
+func GQLInputUserToDBUser(i *gql.NewUser, update bool) (o *dbm.User, err error) {
 	o = &dbm.User{
 		Email:     i.Email,
 		FirstName: i.FirstName,
 		LastName:  i.LastName,
 	}
+
 	if i.Email == "" && !update {
 		return nil, errors.New("Field [email] is required")
 	}
+
 	if i.Email != "" {
 		o.Email = i.Email
 	}
-	if len(ids) > 0 {
-		updID := ids[0]
-		if err != nil {
-			return nil, err
-		}
-		o.ID = updID
+
+	return o, err
+}
+
+func GQLInputAuthMethodToDBAuthMethod(i *gql.NewAuthMethod, update bool) (o *dbm.AuthMethod, err error) {
+	o = &dbm.AuthMethod{
+		MethodId: uint(i.MethodID),
+		Name: i.Name,
 	}
+
+	if i.MethodID == 0 && !update {
+		return nil, errors.New("Field [methodId] is required")
+	}
+
+	if i.Name == "" && !update {
+		return nil, errors.New("Field [name] is required")
+	}
+
 	return o, err
 }

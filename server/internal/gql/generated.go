@@ -51,7 +51,8 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateUser func(childComplexity int, input models.NewUser) int
+		AddAuthMethod func(childComplexity int, newMethod *models.NewAuthMethod) int
+		CreateUser    func(childComplexity int, input models.NewUser) int
 	}
 
 	Query struct {
@@ -70,6 +71,7 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input models.NewUser) (*models.User, error)
+	AddAuthMethod(ctx context.Context, newMethod *models.NewAuthMethod) (bool, error)
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*models.User, error)
@@ -111,6 +113,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuthResponse.TokenToStore(childComplexity), true
+
+	case "Mutation.addAuthMethod":
+		if e.complexity.Mutation.AddAuthMethod == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addAuthMethod_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddAuthMethod(childComplexity, args["newMethod"].(*models.NewAuthMethod)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -246,7 +260,10 @@ var parsedSchema = gqlparser.MustLoadSchema(
     authMethodId: Int!
 }
 `},
-	&ast.Source{Name: "internal/gql/schemas/authentication/authmethod.graphql", Input: `# do nothing for now :)`},
+	&ast.Source{Name: "internal/gql/schemas/authentication/authmethod.graphql", Input: `input newAuthMethod {
+    methodId: Int!
+    name: String!
+}`},
 	&ast.Source{Name: "internal/gql/schemas/authentication/authresponse.graphql", Input: `type AuthResponse {
     tokenToStore: String!
     ttl: Int!
@@ -255,6 +272,8 @@ var parsedSchema = gqlparser.MustLoadSchema(
 	&ast.Source{Name: "internal/gql/schemas/mutations.graphql", Input: `type Mutation {
     # Users
     createUser(input: NewUser!): User!
+    #Authentication
+    addAuthMethod(newMethod: newAuthMethod) : Boolean!
 }`},
 	&ast.Source{Name: "internal/gql/schemas/queries.graphql", Input: `type Query {
     # users
@@ -285,6 +304,20 @@ input NewUser {
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_addAuthMethod_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *models.NewAuthMethod
+	if tmp, ok := rawArgs["newMethod"]; ok {
+		arg0, err = ec.unmarshalOnewAuthMethod2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐNewAuthMethod(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["newMethod"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -517,6 +550,50 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNUser2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_addAuthMethod(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_addAuthMethod_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddAuthMethod(rctx, args["newMethod"].(*models.NewAuthMethod))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2080,6 +2157,30 @@ func (ec *executionContext) unmarshalInputloginDetails(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputnewAuthMethod(ctx context.Context, obj interface{}) (models.NewAuthMethod, error) {
+	var it models.NewAuthMethod
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "methodId":
+			var err error
+			it.MethodID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2142,6 +2243,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = graphql.MarshalString("Mutation")
 		case "createUser":
 			out.Values[i] = ec._Mutation_createUser(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "addAuthMethod":
+			out.Values[i] = ec._Mutation_addAuthMethod(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3118,6 +3224,18 @@ func (ec *executionContext) marshalO__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgen�
 		return graphql.Null
 	}
 	return ec.___Type(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOnewAuthMethod2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐNewAuthMethod(ctx context.Context, v interface{}) (models.NewAuthMethod, error) {
+	return ec.unmarshalInputnewAuthMethod(ctx, v)
+}
+
+func (ec *executionContext) unmarshalOnewAuthMethod2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐNewAuthMethod(ctx context.Context, v interface{}) (*models.NewAuthMethod, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalOnewAuthMethod2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐNewAuthMethod(ctx, v)
+	return &res, err
 }
 
 // endregion ***************************** type.gotpl *****************************

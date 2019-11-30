@@ -33,3 +33,8 @@ type LoginDetails struct {
 	Token          string `json:"token"`
 	AuthMethodID   int    `json:"authMethodId"`
 }
+
+type NewAuthMethod struct {
+	MethodID int    `json:"methodId"`
+	Name     string `json:"name"`
+}

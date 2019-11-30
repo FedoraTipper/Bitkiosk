@@ -1,4 +1,6 @@
 type Mutation {
     # Users
     createUser(input: NewUser!): User!
+    #Authentication
+    addAuthMethod(newMethod: newAuthMethod) : Boolean!
 }
