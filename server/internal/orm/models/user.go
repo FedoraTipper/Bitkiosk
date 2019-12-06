@@ -14,7 +14,7 @@ type User struct {
 
 
 func (toCreate *User) BeforeCreate(db *gorm.DB) (errs error) {
-	users := []User{}
+	var users []User
 
 	//Can't use same email
 	db.Where("email = ?", toCreate.Email).Find(&users)

@@ -27,3 +27,18 @@ func MustGetBool(k string) bool {
 	}
 	return b
 }
+
+func MustGetInt(k string) int {
+	v := os.Getenv(k)
+	if v == "" {
+		log.Panicln("ENV missing, key: " + k)
+	}
+
+	i, err := strconv.Atoi(v)
+
+	if err != nil {
+		log.Panicln("ENV err: [" + k + "]\n" + err.Error())
+	}
+
+	return i
+}

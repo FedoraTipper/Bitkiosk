@@ -32,11 +32,11 @@ func authenticate(r *queryResolver, authDetails models.LoginDetails) (*models.Au
 		return &authResponse, nil
 	}
 
-	if dbErr := db.Where("method_id = ?", authDetails.AuthMethodID).Find(&authMethod); dbErr.Value == nil{
+	if dbErr := db.Where("method_id = ?", authDetails.AuthMethodID).Find(&authMethod); dbErr.Value == nil {
 		return &authResponse, nil
 	}
 
-	if dbErr := db.Where("auth_method_id = ? AND user_id = ?", authMethod.MethodId, user.ID).First(&storedUserAuthMatrix); dbErr.Value == nil{
+	if dbErr := db.Where("auth_method_id = ? AND user_id = ?", authMethod.MethodId, user.ID).First(&storedUserAuthMatrix); dbErr.Value == nil {
 		return &authResponse, nil
 	}
 

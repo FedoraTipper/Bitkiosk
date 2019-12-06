@@ -32,6 +32,10 @@ func Run(orm *orm.ORM) {
 	// Simple keep-alive/ping handler
 	r.GET("/ping", handlers.Ping())
 
+	// Add auth middleware
+	r.Use(handlers.AuthenticationRequired())
+	log.Info("Auth middleware injected.")
+
 	// GraphQL handlers
 	// Playground handler
 	if isPgEnabled {
