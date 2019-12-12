@@ -2,9 +2,10 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"github.com/fedoratipper/bitkiosk/server/internal/digest"
-
-	log "github.com/fedoratipper/bitkiosk/server/internal/logger"
+	"github.com/fedoratipper/bitkiosk/server/internal/handlers/authhandler"
+	logger "github.com/fedoratipper/bitkiosk/server/internal/logger"
 
 	"github.com/fedoratipper/bitkiosk/server/internal/gql/models"
 	tf "github.com/fedoratipper/bitkiosk/server/internal/gql/resolvers/transformations"
@@ -28,7 +29,17 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (bool, err
 
 // Users lists records
 func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
-	return userList(r)
+	authLevel, err := authhandler.GetAuthLevelFromContext(ctx)
+
+	if authLevel == authhandler.UserAuth {
+		return userList(r)
+	} else {
+		if err != nil {
+			logger.Error("Unable to resolve auth level with Users resolver. \n" + err.Error())
+		}
+	}
+
+	return nil, errors.New("not authenticated for query")
 }
 
 // ## Helper functions
@@ -117,7 +128,7 @@ func userList(r *queryResolver) ([]*models.User, error) {
 
 	for _, dbRec := range dbRecords {
 		if rec, err := tf.DBUserToGQLUser(&dbRec); err != nil {
-			log.Errorfn(entity, err)
+			logger.Errorfn(entity, err)
 		} else {
 			res = append(res, rec)
 		}

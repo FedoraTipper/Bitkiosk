@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/fedoratipper/bitkiosk/server/internal/handlers/authhandler"
 	log "github.com/fedoratipper/bitkiosk/server/internal/logger"
 
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
@@ -33,7 +34,7 @@ func Run(orm *orm.ORM) {
 	r.GET("/ping", handlers.Ping())
 
 	// Add auth middleware
-	r.Use(handlers.AuthenticationRequired())
+	r.Use(authhandler.AuthenticationHandler())
 	log.Info("Auth middleware injected.")
 
 	// GraphQL handlers
