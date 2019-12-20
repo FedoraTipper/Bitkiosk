@@ -24,7 +24,7 @@ func GetDigest(secret string, authMethodID uint) string {
 	return ""
 }
 
-func CompareDigest(secret string, dbToken string, authMethodId uint) (bool) {
+func CompareDigest(secret string, dbToken string, authMethodId int) (bool) {
 	switch authMethodId{
 		case 1:
 			return bcryptCompare(secret, dbToken)

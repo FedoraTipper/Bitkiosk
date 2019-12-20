@@ -3,15 +3,22 @@ package models
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type User struct {
 	BaseModelSoftDelete
-	FirstName string  `db:"first_name"`
-	LastName  string  `db:"last_name"`
-	Email     string  `db:"email" gorm:"unique_index;varchar(150)"`
+	Email     string  `db:"email" gorm:"unique_index;varchar(150);index:user_email_idx"`
+	Role	uint	`db:"role" gorm:"not null; default:1"`
 }
 
+type UserProfile struct {
+	BaseModelSoftDelete
+	UserID uint `db:"user_id" gorm:"index:user_id_profile_idx"`
+	FirstName string  `db:"first_name"`
+	LastName  string  `db:"last_name"`
+	DateOfBirth time.Time `db:"date_of_birth"`
+}
 
 func (toCreate *User) BeforeCreate(db *gorm.DB) (errs error) {
 	var users []User

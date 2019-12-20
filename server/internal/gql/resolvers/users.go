@@ -3,8 +3,8 @@ package resolvers
 import (
 	"context"
 	"errors"
+	authhandler "github.com/fedoratipper/bitkiosk/server/internal/authentication"
 	"github.com/fedoratipper/bitkiosk/server/internal/digest"
-	"github.com/fedoratipper/bitkiosk/server/internal/handlers/authhandler"
 	logger "github.com/fedoratipper/bitkiosk/server/internal/logger"
 
 	"github.com/fedoratipper/bitkiosk/server/internal/gql/models"
@@ -29,9 +29,9 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (bool, err
 
 // Users lists records
 func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
-	authLevel, err := authhandler.GetAuthLevelFromContext(ctx)
+	authLevel, err := authhandler.GetAuthLevelFromJWT(ctx)
 
-	if authLevel == authhandler.UserAuth {
+	if authLevel.AuthLevel == authhandler.AdminAuth {
 		return userList(r)
 	} else {
 		if err != nil {
@@ -137,24 +137,3 @@ func userList(r *queryResolver) ([]*models.User, error) {
 	return res, nil
 }
 
-
-
-//func userList(r *queryResolver, id *string) ([]*models.User, error) {
-//	entity := "users"
-//	whereID := "id = ?"
-//	record := &models.User{}
-//	dbRecords := []*dbm.User{}
-//	db := r.ORM.DB.New()
-//	if id != nil {
-//		db = db.Where(whereID, *id)
-//	}
-//	db = db.Find(&dbRecords).Count(&record.Count)
-//	for _, dbRec := range dbRecords {
-//		if rec, err := tf.DBUserToGQLUser(dbRec); err != nil {
-//			log.Errorfn(entity, err)
-//		} else {
-//			record.List = append(record.List, rec)
-//		}
-//	}
-//	return record, db.Error
-//}

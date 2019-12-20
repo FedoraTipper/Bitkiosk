@@ -5,7 +5,7 @@ import (
 )
 
 type BaseModel struct {
-	ID        uint  `gorm:"primary_key;AUTO_INCREMENT"`
+	ID        uint       `gorm:"primary_key;AUTO_INCREMENT"`
 	CreatedAt time.Time  `gorm:"index;not null;default:CURRENT_TIMESTAMP"` // (My|Postgre)SQL
 	UpdatedAt *time.Time `gorm:"index"`
 }

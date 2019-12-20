@@ -15,8 +15,7 @@ var (
 	location                 = "His house, maybe?"
 	firstUser   *models.User = &models.User{
 		Email:     "test@test.com",
-		FirstName: fname,
-		LastName:  lname,
+		Role: 0,
 	}
 )
 

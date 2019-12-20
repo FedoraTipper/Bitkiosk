@@ -1,17 +1,28 @@
 scalar Time
 
 type User {
-    firstName: String!
-    lastName: String!
     email: String!
+    role: Int!
     createdAt: Time!
     updatedAt: Time
 }
 
 input NewUser {
-    firstName: String!
-    lastName: String!
     email: String!
     token: String!
     authMethodId: Int!
+}
+
+type UserProfile {
+    firstName: String
+    lastName: String
+    dateOfBirth: Time
+    createdAt: Time!
+    updatedAt: Time
+}
+
+input UpdatedProfile {
+    firstName: String
+    lastName: String
+    dateOfBirth: Time
 }

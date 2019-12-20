@@ -1,5 +1,0 @@
-input newAuthMethod {
-    methodId: Int!
-    name: String!
-    ttl: Float
-}

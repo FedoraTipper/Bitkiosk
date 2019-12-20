@@ -1,6 +1,8 @@
 type Query {
     # users
     users: [User]!
+    userProfile(user_id: Int): UserProfile!
+
     # authentication
     authenticate(authDetails: loginDetails!): AuthResponse!
 }
