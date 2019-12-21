@@ -4,7 +4,7 @@ package orm
 
 import (
 	log "github.com/fedoratipper/bitkiosk/server/internal/logger"
-
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/DBResult"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm/migration"
 
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils"
@@ -47,4 +47,49 @@ func Factory() (*ORM, error) {
 	}
 	log.Info("[ORM] Database connection initialized.")
 	return orm, err
+}
+
+func CommitOrRollBackIfError(db *gorm.DB, dbResult *DBResult.DBResult) (result *DBResult.DBResult){
+	result = dbResult
+
+	if result.IsOk() {
+		db.Commit()
+	} else {
+		db.Rollback()
+	}
+
+	return result.AddErrorToResult(db.Error)
+}
+
+func CommitOrRollBackIfErrorAndCloseSession(db *gorm.DB, dbResult *DBResult.DBResult) (result *DBResult.DBResult){
+	result = dbResult
+
+	if result.IsOk() {
+		db.Commit()
+	} else {
+		db.RollbackUnlessCommitted()
+	}
+
+	CloseDbConnectionLogIfError(db)
+
+	return result.AddErrorToResult(db.Error)
+}
+
+func CloseDbConnectionLogIfError(db *gorm.DB) {
+	dbCloseErr := db.Close()
+
+	if dbCloseErr != nil {
+		log.Error("Unable to close db connection", dbCloseErr.Error())
+	}
+}
+
+func CreateObject(objToCreate interface{}, objToReturn interface{}, db *gorm.DB) (dbToReturn *gorm.DB, result *DBResult.DBResult) {
+	result = DBResult.NewResult()
+	dbToReturn = db.Create(objToCreate).First(objToReturn)
+
+	if db.Error != nil {
+		result = result.AddErrorToResult(db.Error)
+	}
+
+	return dbToReturn, result
 }

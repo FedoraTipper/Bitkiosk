@@ -5,14 +5,21 @@ type DBResult struct {
 	Info []string
 }
 
+func NewResult() (newResult *DBResult) {
+	return &DBResult{
+		Errors: []error{},
+		Info:   []string{},
+	}
+}
+
 func (r *DBResult) AddResult(newResult *DBResult) (result *DBResult) {
 	result = r
 
-	for _, err := range r.Errors {
-		result.Errors = result.AddError(err)
+	for _, err := range newResult.Errors {
+		result = result.AddErrorToResult(err)
 	}
 
-	for _, info := range r.Info {
+	for _, info := range newResult.Info {
 		result.Info = result.AddInfo(info)
 	}
 
@@ -24,7 +31,20 @@ func (r *DBResult) AddInfo(newInfo string) (info []string) {
 	return append(info, newInfo)
 }
 
-func (r *DBResult) AddError(newError error) (errs []error) {
+func (r *DBResult) AddErrorToResult(newError error) (result *DBResult) {
+	result = r
+
+	if newError == nil {
+		return result
+	}
+
+	errs := result.Errors
+	result.Errors = append(errs, newError)
+
+	return result
+}
+
+func (r *DBResult) AddErrorToResultErrors(newError error) (errs []error) {
 	errs = r.Errors
 	return append(errs, newError)
 }
@@ -35,4 +55,12 @@ func (r *DBResult) IsError() bool {
 
 func (r *DBResult) IsOk() bool {
 	return !r.IsError()
+}
+
+func (r *DBResult) GetFirstError() error {
+	if r.IsError() {
+		return r.Errors[0]
+	}
+
+	return nil
 }

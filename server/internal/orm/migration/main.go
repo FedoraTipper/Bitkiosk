@@ -3,7 +3,6 @@ package migration
 import (
 	"fmt"
 	log "github.com/fedoratipper/bitkiosk/server/internal/logger"
-
 	"github.com/fedoratipper/bitkiosk/server/internal/orm/migration/jobs"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	"github.com/jinzhu/gorm"
@@ -62,23 +61,3 @@ func ServiceAutoMigration(db *gorm.DB) error {
 	return m.Migrate()
 }
 
-
-func CommitOrRollBackIfErrorAndCloseSession(db *gorm.DB, err error) error{
-	if err != nil {
-		db.Commit()
-	} else {
-		db.RollbackUnlessCommitted()
-	}
-
-	CloseDbConnectionLogIfError(db)
-
-	return db.Error
-}
-
-func CloseDbConnectionLogIfError(db *gorm.DB) {
-	dbCloseErr := db.Close()
-
-	if dbCloseErr != nil {
-		log.Error("Unable to close db connection", dbCloseErr.Error())
-	}
-}

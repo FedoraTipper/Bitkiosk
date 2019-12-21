@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/DBResult"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -20,7 +21,7 @@ type UserProfile struct {
 	DateOfBirth time.Time `db:"date_of_birth"`
 }
 
-func (toCreate *User) BeforeCreate(db *gorm.DB) (errs error) {
+func (toCreate *User) BeforeCreate(db *gorm.DB) (err error) {
 	var users []User
 
 	//Can't use same email
@@ -30,7 +31,7 @@ func (toCreate *User) BeforeCreate(db *gorm.DB) (errs error) {
 		return errors.New("email in use already")
 	}
 
-	return
+	return nil
 }
 
 func (toUpdate *User) BeforeUpdate(db *gorm.DB) (errs error) {
@@ -43,4 +44,18 @@ func (toUpdate *User) BeforeUpdate(db *gorm.DB) (errs error) {
 	}
 
 	return
+}
+
+func (toCreate *User) CommitToDb(db *gorm.DB) (userToReturn *User, dbToReturn *gorm.DB, result *DBResult.DBResult) {
+	result = DBResult.NewResult()
+
+	dbToReturn = db.Create(toCreate).First(toCreate)
+
+	db.Commit()
+
+	if db.Error != nil {
+		result = result.AddErrorToResult(db.Error)
+	}
+
+	return toCreate, dbToReturn, result
 }

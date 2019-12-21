@@ -34,14 +34,6 @@ func (r *queryResolver) UserProfile(ctx context.Context, userId *int) (*models.U
 	return nil, errors.New("not authenticated for query")
 }
 
-func createUserProfile(r *queryResolver, gqlUserProfile models.UserProfile) error {
-
-
-
-
-	return nil
-}
-
 
 func getUserProfile(r *queryResolver, uid uint) (*models.UserProfile, error) {
 	var userProfile dbm.UserProfile

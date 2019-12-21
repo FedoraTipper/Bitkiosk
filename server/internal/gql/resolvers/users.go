@@ -6,6 +6,9 @@ import (
 	authhandler "github.com/fedoratipper/bitkiosk/server/internal/authentication"
 	"github.com/fedoratipper/bitkiosk/server/internal/digest"
 	logger "github.com/fedoratipper/bitkiosk/server/internal/logger"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/DBResult"
+	"time"
 
 	"github.com/fedoratipper/bitkiosk/server/internal/gql/models"
 	tf "github.com/fedoratipper/bitkiosk/server/internal/gql/resolvers/transformations"
@@ -45,41 +48,50 @@ func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 // ## Helper functions
 
 func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error) {
+	dbResult := DBResult.NewResult()
+	var gqlReturn *models.User
+
 	userDbo, err := tf.GQLInputUserToDBUser(&input, false)
 	if err != nil {
 		return nil, err
 	}
+
+	userDbo.Role = authhandler.UserAuth
+
 	// Create scoped clean db interface
 	db := r.ORM.DB.New().Begin()
 
-	var errBeforeCreate = userDbo.BeforeCreate(db)
+	dbResult =  dbResult.AddErrorToResult(userDbo.BeforeCreate(db))
 
-	if errBeforeCreate != nil {
-		_ = db.Close()
-		return nil, errBeforeCreate
+	db, newDbResult := orm.CreateObject(userDbo, userDbo, db)
+	dbResult = dbResult.AddResult(newDbResult)
+
+	if dbResult.IsOk() {
+		gqlReturn, _ = tf.DBUserToGQLUser(userDbo)
+
+		tokenDigest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
+
+		authenticationMatrixDbo := &dbm.AuthenticationMatrix{UserID: userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token: tokenDigest}
+
+		db, newDbResult = orm.CreateObject(authenticationMatrixDbo, authenticationMatrixDbo, db)
+		dbResult = dbResult.AddResult(newDbResult)
+
+		if dbResult.IsOk() {
+			userProfileDbo := &dbm.UserProfile{
+				UserID:              userDbo.ID,
+				FirstName:           "",
+				LastName:            "",
+				DateOfBirth:         time.Time{},
+			}
+
+			db, newDbResult = orm.CreateObject(userProfileDbo, userProfileDbo, db)
+			dbResult = dbResult.AddResult(newDbResult)
+		}
 	}
 
-	db = db.Create(userDbo).First(userDbo) // Create the user
+	dbResult = orm.CommitOrRollBackIfError(db, dbResult)
 
-	gql, err := tf.DBUserToGQLUser(userDbo)
-
-	if err != nil {
-		return nil, err
-	}
-
-	tokenDigest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
-
-	authenticationMatrixDbo := &dbm.AuthenticationMatrix{UserID:userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token:tokenDigest}
-
-	db = db.Create(authenticationMatrixDbo).First(authenticationMatrixDbo) // Create new authentication matrix for user
-
-	if db.Error != nil {
-		return nil, db.Error
-	}
-
-	db = db.Commit()
-
-	return gql, db.Error
+	return gqlReturn, dbResult.GetFirstError()
 }
 
 func userUpdate(r *mutationResolver, input models.NewUser, ids ...uint) (*models.User, error) {
