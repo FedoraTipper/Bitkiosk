@@ -55,6 +55,7 @@ func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error)
 	var errBeforeCreate = userDbo.BeforeCreate(db)
 
 	if errBeforeCreate != nil {
+		_ = db.Close()
 		return nil, errBeforeCreate
 	}
 
@@ -66,9 +67,9 @@ func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error)
 		return nil, err
 	}
 
-	digest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
+	tokenDigest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
 
-	authenticationMatrixDbo := &dbm.AuthenticationMatrix{UserID:userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token:digest}
+	authenticationMatrixDbo := &dbm.AuthenticationMatrix{UserID:userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token:tokenDigest}
 
 	db = db.Create(authenticationMatrixDbo).First(authenticationMatrixDbo) // Create new authentication matrix for user
 

@@ -22,9 +22,9 @@ func (r *queryResolver) UserProfile(ctx context.Context, userId *int) (*models.U
 	}
 
 	if authLevel.AuthLevel == authhandler.UserAuth && *userId == int(authLevel.UID) {
-		return getUserProfile(r, authLevel.UID), nil
+		return getUserProfile(r, authLevel.UID)
 	} else if authLevel.AuthLevel == authhandler.AdminAuth	{
-		return getUserProfile(r, authLevel.UID), nil
+		return getUserProfile(r, authLevel.UID)
 	} else {
 		if err != nil {
 			logger.Error("Unable to resolve auth level with Users resolver. \n" + err.Error())
@@ -34,8 +34,12 @@ func (r *queryResolver) UserProfile(ctx context.Context, userId *int) (*models.U
 	return nil, errors.New("not authenticated for query")
 }
 
-func createUserProfile() {
+func createUserProfile(r *queryResolver, gqlUserProfile models.UserProfile) error {
 
+
+
+
+	return nil
 }
 
 
@@ -44,20 +48,18 @@ func getUserProfile(r *queryResolver, uid uint) (*models.UserProfile, error) {
 	db := r.ORM.DB.New()
 
 	db.Where("user_id = ?", uid).First(&userProfile)
-	db.Close()
+	closeErr := db.Close()
 
-	if userProfile.ID == 0 {
-		return nil, errors.New("unable to find user profile")
+	if closeErr != nil {
+		logger.Error("Unable to close session", closeErr.Error())
 	}
 
-	for _, dbRec := range dbRecords {
-		if rec, err := tf.DBUserToGQLUser(&dbRec); err != nil {
-			logger.Errorfn("userProfile", err)
-		} else {
-			res = append(res, rec)
-		}
+	gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(&userProfile)
+
+	if err != nil {
+		return &models.UserProfile{}, err
 	}
 
-	return res, nil
+	return gqlUserProfile, nil
 
 }

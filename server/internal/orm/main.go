@@ -21,6 +21,7 @@ type ORM struct {
 	DB *gorm.DB
 }
 
+
 func init() {
 	dialect = utils.MustGet("GORM_DIALECT")
 	dsn = utils.MustGet("GORM_CONNECTION_DSN")

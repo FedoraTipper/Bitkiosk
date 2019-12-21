@@ -382,4 +382,5 @@ yarn-error.log*
 # Env
 /server/.env
 
-
+# Avoid dictionaries
+.idea/dictionaries/

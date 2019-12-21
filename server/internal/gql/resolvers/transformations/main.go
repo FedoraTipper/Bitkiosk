@@ -2,7 +2,6 @@ package transformations
 
 import (
 	"errors"
-
 	gql "github.com/fedoratipper/bitkiosk/server/internal/gql/models"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 )
@@ -34,6 +33,21 @@ func GQLInputUserToDBUser(i *gql.NewUser, update bool) (o *dbm.User, err error) 
 
 	if i.Email != "" {
 		o.Email = i.Email
+	}
+
+	return o, err
+}
+
+func DBUserProfileToGQLUserProfile(i *dbm.UserProfile) (o *gql.UserProfile, err error) {
+
+	if i.ID == 0 {
+		return nil, errors.New("unable to find user profile")
+	}
+
+	o = &gql.UserProfile{
+		FirstName:   &i.FirstName,
+		LastName:    &i.LastName,
+		DateOfBirth: &i.DateOfBirth,
 	}
 
 	return o, err
