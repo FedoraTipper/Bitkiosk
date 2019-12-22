@@ -9,14 +9,11 @@ import (
 
 // DBUserToGQLUser transforms [user] db input to gql type
 func DBUserToGQLUser(i *dbm.User) (o *gql.User, err error) {
-	formattedCreatedAt := date.FormatToSqlDate(i.CreatedAt)
-	formattedUpdatedAt := date.FormatToSqlDate(*i.UpdatedAt)
-
 	o = &gql.User{
 		Email:     i.Email,
 		Role:	   int(i.Role),
-		CreatedAt: &formattedCreatedAt,
-		UpdatedAt: &formattedUpdatedAt,
+		CreatedAt: date.FormatToSqlDate(&i.CreatedAt),
+		UpdatedAt: date.FormatToSqlDate(i.UpdatedAt),
 	}
 	return o, err
 }
@@ -48,12 +45,10 @@ func DBUserProfileToGQLUserProfile(i *dbm.UserProfile) (o *gql.UserProfile, err 
 		return nil, errors.New("unable to find user profile")
 	}
 
-	formattedDateOfBirth := date.FormatToSqlDate(i.DateOfBirth)
-
 	o = &gql.UserProfile{
-		FirstName:   &i.FirstName,
-		LastName:    &i.LastName,
-		DateOfBirth: &formattedDateOfBirth,
+		FirstName:   i.FirstName,
+		LastName:    i.LastName,
+		DateOfBirth: date.FormatToSqlDate(i.DateOfBirth),
 	}
 
 	return o, err

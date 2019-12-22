@@ -11,8 +11,14 @@ const (
 	ISOLayout  = "2006-01-02"
 )
 
-func FormatToSqlDate(t time.Time) string {
-	return t.Format(ISOLayout)
+func FormatToSqlDate(t *time.Time) *string {
+	if t == nil {
+		return nil
+	}
+
+	date := t.Format(ISOLayout)
+
+	return &date
 }
 
 

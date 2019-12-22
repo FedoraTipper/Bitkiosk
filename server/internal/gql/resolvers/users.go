@@ -77,7 +77,8 @@ func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error)
 		dbResult = dbResult.AddResult(newDbResult)
 
 		var dateOfBirth time.Time
-		if input.DateOfBirth != nil {
+		var inputtedDOB = input.DateOfBirth != nil && len(*input.DateOfBirth) > 0
+		if inputtedDOB {
 			dateOfBirth, newDbResult = date.ParseSqlDate(*input.DateOfBirth)
 			dbResult = dbResult.AddResult(newDbResult)
 		}
@@ -85,9 +86,12 @@ func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error)
 		if dbResult.IsOk() {
 			userProfileDbo := &dbm.UserProfile{
 				UserID:              userDbo.ID,
-				FirstName:           *input.FirstName,
-				LastName:            *input.LastName,
-				DateOfBirth: 		 dateOfBirth,
+				FirstName:           input.FirstName,
+				LastName:            input.LastName,
+			}
+
+			if inputtedDOB {
+				userProfileDbo.DateOfBirth = &dateOfBirth
 			}
 
 			db, newDbResult = orm.CreateObject(userProfileDbo, userProfileDbo, db)
