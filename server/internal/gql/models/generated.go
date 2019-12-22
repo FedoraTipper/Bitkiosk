@@ -2,10 +2,6 @@
 
 package models
 
-import (
-	"time"
-)
-
 type AuthResponse struct {
 	TokenToStore string `json:"tokenToStore"`
 	TTL          int    `json:"ttl"`
@@ -13,30 +9,34 @@ type AuthResponse struct {
 }
 
 type NewUser struct {
-	Email        string `json:"email"`
-	Token        string `json:"token"`
-	AuthMethodID int    `json:"authMethodId"`
+	Email        string  `json:"email"`
+	Token        string  `json:"token"`
+	AuthMethodID int     `json:"authMethodId"`
+	FirstName    *string `json:"firstName"`
+	LastName     *string `json:"lastName"`
+	DateOfBirth  *string `json:"dateOfBirth"`
 }
 
 type UpdatedProfile struct {
-	FirstName   *string    `json:"firstName"`
-	LastName    *string    `json:"lastName"`
-	DateOfBirth *time.Time `json:"dateOfBirth"`
+	FirstName   *string `json:"firstName"`
+	LastName    *string `json:"lastName"`
+	DateOfBirth *string `json:"dateOfBirth"`
 }
 
 type User struct {
-	Email     string     `json:"email"`
-	Role      int        `json:"role"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt *time.Time `json:"updatedAt"`
+	Email       string       `json:"email"`
+	Role        int          `json:"role"`
+	CreatedAt   *string      `json:"createdAt"`
+	UpdatedAt   *string      `json:"updatedAt"`
+	UserProfile *UserProfile `json:"userProfile"`
 }
 
 type UserProfile struct {
-	FirstName   *string    `json:"firstName"`
-	LastName    *string    `json:"lastName"`
-	DateOfBirth *time.Time `json:"dateOfBirth"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   *time.Time `json:"updatedAt"`
+	FirstName   *string `json:"firstName"`
+	LastName    *string `json:"lastName"`
+	DateOfBirth *string `json:"dateOfBirth"`
+	CreatedAt   string  `json:"createdAt"`
+	UpdatedAt   *string `json:"updatedAt"`
 }
 
 type LoginDetails struct {

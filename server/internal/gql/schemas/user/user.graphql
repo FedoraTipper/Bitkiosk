@@ -1,28 +1,30 @@
-scalar Time
-
 type User {
     email: String!
     role: Int!
-    createdAt: Time!
-    updatedAt: Time
+    createdAt: String
+    updatedAt: String
+    userProfile: UserProfile
 }
 
 input NewUser {
     email: String!
     token: String!
     authMethodId: Int!
+    firstName: String
+    lastName: String
+    dateOfBirth: String
 }
 
 type UserProfile {
     firstName: String
     lastName: String
-    dateOfBirth: Time
-    createdAt: Time!
-    updatedAt: Time
+    dateOfBirth: String
+    createdAt: String!
+    updatedAt: String
 }
 
 input UpdatedProfile {
     firstName: String
     lastName: String
-    dateOfBirth: Time
+    dateOfBirth: String
 }

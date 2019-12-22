@@ -5,14 +5,14 @@ import (
 	"errors"
 	authhandler "github.com/fedoratipper/bitkiosk/server/internal/authentication"
 	"github.com/fedoratipper/bitkiosk/server/internal/digest"
+	"github.com/fedoratipper/bitkiosk/server/internal/gql/models"
+	tf "github.com/fedoratipper/bitkiosk/server/internal/gql/resolvers/transformations"
 	logger "github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm/DBResult"
-	"time"
-
-	"github.com/fedoratipper/bitkiosk/server/internal/gql/models"
-	tf "github.com/fedoratipper/bitkiosk/server/internal/gql/resolvers/transformations"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
+	"github.com/fedoratipper/bitkiosk/server/pkg/utils/date"
+	"time"
 )
 
 // CreateUser creates a record
@@ -76,16 +76,30 @@ func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error)
 		db, newDbResult = orm.CreateObject(authenticationMatrixDbo, authenticationMatrixDbo, db)
 		dbResult = dbResult.AddResult(newDbResult)
 
+		var dateOfBirth time.Time
+		if input.DateOfBirth != nil {
+			dateOfBirth, newDbResult = date.ParseSqlDate(*input.DateOfBirth)
+			dbResult = dbResult.AddResult(newDbResult)
+		}
+
 		if dbResult.IsOk() {
 			userProfileDbo := &dbm.UserProfile{
 				UserID:              userDbo.ID,
-				FirstName:           "",
-				LastName:            "",
-				DateOfBirth:         time.Time{},
+				FirstName:           *input.FirstName,
+				LastName:            *input.LastName,
+				DateOfBirth: 		 dateOfBirth,
 			}
 
 			db, newDbResult = orm.CreateObject(userProfileDbo, userProfileDbo, db)
 			dbResult = dbResult.AddResult(newDbResult)
+
+			if dbResult.IsOk() {
+				if gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(userProfileDbo); err == nil {
+					gqlReturn.UserProfile = gqlUserProfile
+				} else {
+					dbResult = dbResult.AddErrorToResult(err)
+				}
+			}
 		}
 	}
 

@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"github.com/fedoratipper/bitkiosk/server/internal/orm/DBResult"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -34,7 +33,7 @@ func (toCreate *User) BeforeCreate(db *gorm.DB) (err error) {
 	return nil
 }
 
-func (toUpdate *User) BeforeUpdate(db *gorm.DB) (errs error) {
+func (toUpdate *User) BeforeUpdate(db *gorm.DB) (err error) {
 	var dbo User
 
 	db.Where("email = ?", toUpdate.Email).Find(&dbo)
@@ -46,16 +45,3 @@ func (toUpdate *User) BeforeUpdate(db *gorm.DB) (errs error) {
 	return
 }
 
-func (toCreate *User) CommitToDb(db *gorm.DB) (userToReturn *User, dbToReturn *gorm.DB, result *DBResult.DBResult) {
-	result = DBResult.NewResult()
-
-	dbToReturn = db.Create(toCreate).First(toCreate)
-
-	db.Commit()
-
-	if db.Error != nil {
-		result = result.AddErrorToResult(db.Error)
-	}
-
-	return toCreate, dbToReturn, result
-}
