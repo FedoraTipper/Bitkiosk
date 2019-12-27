@@ -14,11 +14,11 @@ func init() {
 	signingKey = []byte(utils.MustGet("JWT_SIGNING_KEY"))
 }
 
-func GenerateJWT(ttl time.Duration) (string, error) {
+func GenerateJWT(ttl time.Duration, authLevel int) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := token.Claims.(jwt.MapClaims)
 
-
+	claims["auth_level"] = authLevel
 	claims["exp"] = time.Now().Add(time.Minute * ttl).Unix()
 
 	tokenString, err := token.SignedString(signingKey)

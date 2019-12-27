@@ -15,9 +15,9 @@ type User struct {
 type UserProfile struct {
 	BaseModelSoftDelete
 	UserID uint `db:"user_id" gorm:"index:user_id_profile_idx"`
-	FirstName string  `db:"first_name"`
-	LastName  string  `db:"last_name"`
-	DateOfBirth time.Time `db:"date_of_birth"`
+	FirstName *string  `db:"first_name"`
+	LastName  *string  `db:"last_name"`
+	DateOfBirth *time.Time `db:"date_of_birth"`
 }
 
 func (toCreate *User) BeforeCreate(db *gorm.DB) (err error) {

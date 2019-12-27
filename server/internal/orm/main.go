@@ -49,16 +49,15 @@ func Factory() (*ORM, error) {
 	return orm, err
 }
 
-func CommitOrRollBackIfError(db *gorm.DB, dbResult *DBResult.DBResult) (result *DBResult.DBResult){
-	result = dbResult
+func CommitOrRollBackIfError(db *gorm.DB, err error) error  {
 
-	if result.IsOk() {
+	if err == nil{
 		db.Commit()
 	} else {
 		db.Rollback()
 	}
 
-	return result.AddErrorToResult(db.Error)
+	return db.Error
 }
 
 func CommitOrRollBackIfErrorAndCloseSession(db *gorm.DB, dbResult *DBResult.DBResult) (result *DBResult.DBResult){
@@ -83,13 +82,12 @@ func CloseDbConnectionLogIfError(db *gorm.DB) {
 	}
 }
 
-func CreateObject(objToCreate interface{}, objToReturn interface{}, db *gorm.DB) (dbToReturn *gorm.DB, result *DBResult.DBResult) {
-	result = DBResult.NewResult()
+func CreateObject(objToCreate interface{}, objToReturn interface{}, db *gorm.DB) (dbToReturn *gorm.DB, err error) {
 	dbToReturn = db.Create(objToCreate).First(objToReturn)
 
 	if db.Error != nil {
-		result = result.AddErrorToResult(db.Error)
+		err = db.Error
 	}
 
-	return dbToReturn, result
+	return dbToReturn, err
 }

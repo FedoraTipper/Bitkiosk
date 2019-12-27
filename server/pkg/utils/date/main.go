@@ -3,7 +3,6 @@ package date
 import (
 	"errors"
 	"github.com/fedoratipper/bitkiosk/server/internal/logger"
-	"github.com/fedoratipper/bitkiosk/server/internal/orm/DBResult"
 	"time"
 )
 
@@ -22,15 +21,14 @@ func FormatToSqlDate(t *time.Time) *string {
 }
 
 
-func ParseSqlDate(date string) (time.Time, *DBResult.DBResult){
-	dbResult := DBResult.NewResult()
-
+func ParseSqlDate(date string) (*time.Time, error){
 	t, err := time.Parse(ISOLayout, date)
 
 	if err != nil {
 		logger.Errorfn("ParseSqlDate", err)
-		dbResult = dbResult.AddErrorToResult(errors.New("Unable to parse date  (" + date + "). Please ensure date is in YYYY-mm-DD format."))
+		// replace error with user friendly version
+		err = errors.New("Unable to parse date  (" + date + "). Please ensure date is in YYYY-mm-DD format.")
 	}
 
-	return t, dbResult
+	return &t, err
 }

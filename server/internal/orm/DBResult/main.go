@@ -3,6 +3,7 @@ package DBResult
 type DBResult struct {
 	Errors []error
 	Info []string
+	Warnings []string
 }
 
 func NewResult() (newResult *DBResult) {
@@ -44,9 +45,18 @@ func (r *DBResult) AddErrorToResult(newError error) (result *DBResult) {
 	return result
 }
 
-func (r *DBResult) AddErrorToResultErrors(newError error) (errs []error) {
-	errs = r.Errors
-	return append(errs, newError)
+
+func (r *DBResult) AddWarningToResult(newWarning string) (result *DBResult) {
+	result = r
+
+	if newWarning == "" {
+		return result
+	}
+
+	currentWarnings := result.Warnings
+	result.Warnings = append(currentWarnings, newWarning)
+
+	return result
 }
 
 func (r *DBResult) IsError() bool {

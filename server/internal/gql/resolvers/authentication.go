@@ -2,7 +2,7 @@ package resolvers
 
 import (
 	"context"
-	"github.com/fedoratipper/bitkiosk/server/internal/authentication/jwt"
+	"github.com/fedoratipper/bitkiosk/server/internal/authentication/session"
 	"github.com/fedoratipper/bitkiosk/server/internal/digest"
 	"github.com/fedoratipper/bitkiosk/server/internal/gql/models"
 	"github.com/fedoratipper/bitkiosk/server/internal/logger"
@@ -42,21 +42,26 @@ func authenticate(r *queryResolver, authDetails models.LoginDetails) (*models.Au
 	if digest.CompareDigest(authDetails.Token, storedUserAuthMatrix.Token, authMethod.ID) {
 
 		durationString := strconv.Itoa(authMethod.TTL)
-		ttl, err := time.ParseDuration(durationString + "m")
+		ttl, err := time.ParseDuration(durationString + "M")
 
 		if err != nil {
 			logger.Error("Unable to parse auth method duration.\nError:\n" + err.Error())
 			return &authResponse, nil
 		}
 
-		jwtString, err := jwt.GenerateJWT(ttl)
+		authLevel := session.AuthLevel{
+			AuthLevel: int(user.Role),
+			UID:       int(user.ID),
+		}
+
+		sessionToken, err := session.GenerateSession(ttl, authLevel)
 
 		if err != nil {
 			return &authResponse, nil
 		}
 
 		return &models.AuthResponse{
-			TokenToStore: jwtString,
+			TokenToStore: sessionToken,
 			TTL:         authMethod.TTL,
 			RefreshToken: "KEKW",
 		}, nil
