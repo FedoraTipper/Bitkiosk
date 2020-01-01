@@ -60,7 +60,7 @@ func CommitOrRollBackIfError(db *gorm.DB, err error) error  {
 	return db.Error
 }
 
-func CommitOrRollBackIfErrorAndCloseSession(db *gorm.DB, dbResult *DBResult.DBResult) (result *DBResult.DBResult){
+func CommitOrRollBackIfErrorAndCloseSession(db *gorm.DB, dbResult *DBResult.DBResult) (result *DBResult.DBResult) {
 	result = dbResult
 
 	if result.IsOk() {

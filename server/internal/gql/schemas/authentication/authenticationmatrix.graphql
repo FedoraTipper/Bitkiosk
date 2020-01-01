@@ -1,5 +1,5 @@
-input loginDetails {
-    identification: String! # Context: username, email
-    token: String! # Context: the shared secret
-    authMethodId: Int!
-}
+#input loginDetails {
+#    identification: String! # Context: username, email
+#    token: String! # Context: the shared secret
+#    authMethodId: Int!
+#}

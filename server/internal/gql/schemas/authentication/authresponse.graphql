@@ -1,5 +1,5 @@
-type AuthResponse {
-    tokenToStore: String!
-    ttl: Int!
-    refreshToken: String!
-}
+#type AuthResponse {
+#    tokenToStore: String!
+#    ttl: Int!
+#    refreshToken: String!
+#}

@@ -32,6 +32,7 @@ func Run(orm *orm.ORM) {
 	// Handlers
 	// Simple keep-alive/ping handler
 	r.GET("/ping", handlers.Ping())
+	r.POST("/authenticate", handlers.AuthenticationHandler(orm))
 
 	// Add auth middleware
 	r.Use(middleware.AddContextToGinRequest())

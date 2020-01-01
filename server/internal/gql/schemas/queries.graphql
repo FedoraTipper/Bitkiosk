@@ -4,5 +4,5 @@ type Query {
     userProfile(user_id: Int): UserProfile!
 
     # authentication
-    authenticate(authDetails: loginDetails!): AuthResponse!
+    #authenticate(authDetails: loginDetails!): AuthResponse!
 }

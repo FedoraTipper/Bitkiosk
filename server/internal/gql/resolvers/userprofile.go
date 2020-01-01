@@ -35,7 +35,6 @@ func (r *queryResolver) UserProfile(ctx context.Context, userId *int) (*models.U
 	return nil, errors.New("not authenticated for query")
 }
 
-
 func getUserProfile(r *queryResolver, uid int) (*models.UserProfile, error) {
 	var userProfile dbm.UserProfile
 	db := r.ORM.DB.New()
@@ -44,7 +43,7 @@ func getUserProfile(r *queryResolver, uid int) (*models.UserProfile, error) {
 	closeErr := db.Close()
 
 	if closeErr != nil {
-		logger.Error("Unable to close session", closeErr.Error())
+		logger.Errorfn("getUserProfile", closeErr)
 	}
 
 	gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(&userProfile)

@@ -46,7 +46,6 @@ func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 }
 
 // ## Helper functions
-
 func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error) {
 	var gqlReturn *models.User
 

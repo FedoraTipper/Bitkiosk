@@ -2,12 +2,6 @@
 
 package models
 
-type AuthResponse struct {
-	TokenToStore string `json:"tokenToStore"`
-	TTL          int    `json:"ttl"`
-	RefreshToken string `json:"refreshToken"`
-}
-
 type NewUser struct {
 	Email        string  `json:"email"`
 	Token        string  `json:"token"`
@@ -37,10 +31,4 @@ type UserProfile struct {
 	DateOfBirth *string `json:"dateOfBirth"`
 	CreatedAt   string  `json:"createdAt"`
 	UpdatedAt   *string `json:"updatedAt"`
-}
-
-type LoginDetails struct {
-	Identification string `json:"identification"`
-	Token          string `json:"token"`
-	AuthMethodID   int    `json:"authMethodId"`
 }

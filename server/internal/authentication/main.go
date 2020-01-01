@@ -16,6 +16,7 @@ const (
 	authKey  = "Authorization"
 )
 
+// Not used - Moved to session management
 func GetAuthLevelFromJWT(ctx context.Context) (*session.AuthLevel, error) {
 	ginContext := ctx.Value("GinContextKey")
 	if ginContext == nil {
@@ -64,10 +65,10 @@ func GetAuthLevelFromSession(ctx context.Context) (*session.AuthLevel, error) {
 		return &session.AuthLevel{AuthLevel: session.NoAuth}, err
 	}
 
-	token := gc.Request.Header.Get(tokenKey)
+	authCookie, err := gc.Request.Cookie(authKey)
 
-	if token != "" {
-		authLevel, _ := session.GetSessionAuthLevel(token)
+	if err == nil && authCookie != nil && authCookie.Value != "" {
+		authLevel, _ := session.GetSessionAuthLevel(authCookie.Value)
 		return &session.AuthLevel{AuthLevel: authLevel.AuthLevel, UID: authLevel.UID}, nil
 	}
 

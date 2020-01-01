@@ -20,7 +20,6 @@ func FormatToSqlDate(t *time.Time) *string {
 	return &date
 }
 
-
 func ParseSqlDate(date string) (*time.Time, error){
 	t, err := time.Parse(ISOLayout, date)
 

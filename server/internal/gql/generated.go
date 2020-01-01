@@ -43,21 +43,14 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	AuthResponse struct {
-		RefreshToken func(childComplexity int) int
-		TTL          func(childComplexity int) int
-		TokenToStore func(childComplexity int) int
-	}
-
 	Mutation struct {
 		CreateUser        func(childComplexity int, input models.NewUser) int
 		UpdateUserProfile func(childComplexity int, input models.UpdatedProfile) int
 	}
 
 	Query struct {
-		Authenticate func(childComplexity int, authDetails models.LoginDetails) int
-		UserProfile  func(childComplexity int, userID *int) int
-		Users        func(childComplexity int) int
+		UserProfile func(childComplexity int, userID *int) int
+		Users       func(childComplexity int) int
 	}
 
 	User struct {
@@ -84,7 +77,6 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*models.User, error)
 	UserProfile(ctx context.Context, userID *int) (*models.UserProfile, error)
-	Authenticate(ctx context.Context, authDetails models.LoginDetails) (*models.AuthResponse, error)
 }
 
 type executableSchema struct {
@@ -101,27 +93,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
-
-	case "AuthResponse.refreshToken":
-		if e.complexity.AuthResponse.RefreshToken == nil {
-			break
-		}
-
-		return e.complexity.AuthResponse.RefreshToken(childComplexity), true
-
-	case "AuthResponse.ttl":
-		if e.complexity.AuthResponse.TTL == nil {
-			break
-		}
-
-		return e.complexity.AuthResponse.TTL(childComplexity), true
-
-	case "AuthResponse.tokenToStore":
-		if e.complexity.AuthResponse.TokenToStore == nil {
-			break
-		}
-
-		return e.complexity.AuthResponse.TokenToStore(childComplexity), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -146,18 +117,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateUserProfile(childComplexity, args["input"].(models.UpdatedProfile)), true
-
-	case "Query.authenticate":
-		if e.complexity.Query.Authenticate == nil {
-			break
-		}
-
-		args, err := ec.field_Query_authenticate_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Authenticate(childComplexity, args["authDetails"].(models.LoginDetails)), true
 
 	case "Query.userProfile":
 		if e.complexity.Query.UserProfile == nil {
@@ -310,17 +269,17 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var parsedSchema = gqlparser.MustLoadSchema(
-	&ast.Source{Name: "internal/gql/schemas/authentication/authenticationmatrix.graphql", Input: `input loginDetails {
-    identification: String! # Context: username, email
-    token: String! # Context: the shared secret
-    authMethodId: Int!
-}
+	&ast.Source{Name: "internal/gql/schemas/authentication/authenticationmatrix.graphql", Input: `#input loginDetails {
+#    identification: String! # Context: username, email
+#    token: String! # Context: the shared secret
+#    authMethodId: Int!
+#}
 `},
-	&ast.Source{Name: "internal/gql/schemas/authentication/authresponse.graphql", Input: `type AuthResponse {
-    tokenToStore: String!
-    ttl: Int!
-    refreshToken: String!
-}`},
+	&ast.Source{Name: "internal/gql/schemas/authentication/authresponse.graphql", Input: `#type AuthResponse {
+#    tokenToStore: String!
+#    ttl: Int!
+#    refreshToken: String!
+#}`},
 	&ast.Source{Name: "internal/gql/schemas/mutations.graphql", Input: `type Mutation {
     # Users
     createUser(input: NewUser!): User!
@@ -332,7 +291,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
     userProfile(user_id: Int): UserProfile!
 
     # authentication
-    authenticate(authDetails: loginDetails!): AuthResponse!
+    #authenticate(authDetails: loginDetails!): AuthResponse!
 }`},
 	&ast.Source{Name: "internal/gql/schemas/user/user.graphql", Input: `type User {
     email: String!
@@ -412,20 +371,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_authenticate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 models.LoginDetails
-	if tmp, ok := rawArgs["authDetails"]; ok {
-		arg0, err = ec.unmarshalNloginDetails2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐLoginDetails(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["authDetails"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Query_userProfile_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -475,117 +420,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _AuthResponse_tokenToStore(ctx context.Context, field graphql.CollectedField, obj *models.AuthResponse) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "AuthResponse",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TokenToStore, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _AuthResponse_ttl(ctx context.Context, field graphql.CollectedField, obj *models.AuthResponse) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "AuthResponse",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.TTL, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _AuthResponse_refreshToken(ctx context.Context, field graphql.CollectedField, obj *models.AuthResponse) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "AuthResponse",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.RefreshToken, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
 
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
@@ -754,50 +588,6 @@ func (ec *executionContext) _Query_userProfile(ctx context.Context, field graphq
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNUserProfile2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUserProfile(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Query_authenticate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Query",
-		Field:    field,
-		Args:     nil,
-		IsMethod: true,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_authenticate_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	rctx.Args = args
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Authenticate(rctx, args["authDetails"].(models.LoginDetails))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*models.AuthResponse)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNAuthResponse2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐAuthResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2453,36 +2243,6 @@ func (ec *executionContext) unmarshalInputUpdatedProfile(ctx context.Context, ob
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputloginDetails(ctx context.Context, obj interface{}) (models.LoginDetails, error) {
-	var it models.LoginDetails
-	var asMap = obj.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "identification":
-			var err error
-			it.Identification, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "token":
-			var err error
-			it.Token, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "authMethodId":
-			var err error
-			it.AuthMethodID, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2490,43 +2250,6 @@ func (ec *executionContext) unmarshalInputloginDetails(ctx context.Context, obj 
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
-
-var authResponseImplementors = []string{"AuthResponse"}
-
-func (ec *executionContext) _AuthResponse(ctx context.Context, sel ast.SelectionSet, obj *models.AuthResponse) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.RequestContext, sel, authResponseImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AuthResponse")
-		case "tokenToStore":
-			out.Values[i] = ec._AuthResponse_tokenToStore(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "ttl":
-			out.Values[i] = ec._AuthResponse_ttl(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "refreshToken":
-			out.Values[i] = ec._AuthResponse_refreshToken(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
 
 var mutationImplementors = []string{"Mutation"}
 
@@ -2602,20 +2325,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_userProfile(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			})
-		case "authenticate":
-			field := field
-			out.Concurrently(i, func() (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_authenticate(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -2953,20 +2662,6 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
-
-func (ec *executionContext) marshalNAuthResponse2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v models.AuthResponse) graphql.Marshaler {
-	return ec._AuthResponse(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAuthResponse2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐAuthResponse(ctx context.Context, sel ast.SelectionSet, v *models.AuthResponse) graphql.Marshaler {
-	if v == nil {
-		if !ec.HasError(graphql.GetResolverContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._AuthResponse(ctx, sel, v)
-}
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
@@ -3307,10 +3002,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNloginDetails2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐLoginDetails(ctx context.Context, v interface{}) (models.LoginDetails, error) {
-	return ec.unmarshalInputloginDetails(ctx, v)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

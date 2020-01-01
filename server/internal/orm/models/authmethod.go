@@ -1,13 +1,15 @@
 package models
 
 type AuthMethod struct {
-	ID       int
-	TTL      int  // minutes to refresh
+	ID         int
+	TTL        int // minutes to refresh
+	RefreshTTL int
 }
 
 var DefaultAuth = &AuthMethod{
 	ID:  1,
-	TTL: 3600,
+	TTL: 30,
+	RefreshTTL: 3600, // 60 hours
 }
 
 func GetAuthMethod(ID int) *AuthMethod {
