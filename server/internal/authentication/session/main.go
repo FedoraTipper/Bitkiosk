@@ -51,10 +51,19 @@ func GenerateSession (ttl time.Duration, authLevel AuthLevel) (string, error) {
 	return generatedKey, err
 }
 
-//func DestroySession (sessionId string) DBResult.DBResult {
-//	dbResult := DBResult.NewResult()
-//}
-//
+func DestroySession (sessionId string) error {
+
+	redisClient, err := redis.Factory()
+
+	if err == nil {
+		err = redisClient.Del(sessionId).Err()
+	}
+
+	closeSession(redisClient)
+
+	return err
+}
+
 
 func GetSessionAuthLevel (sessionKey string) (AuthLevel, error) {
 	var sessionAuthLevel AuthLevel

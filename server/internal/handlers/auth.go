@@ -6,13 +6,13 @@ import (
 	"github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
+	"github.com/fedoratipper/bitkiosk/server/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"strconv"
 	"time"
 )
 
 // Standard gin endpoint for authentication
-
 type loginDetails struct {
 	Identification string `json:"identification" binding:"required"`
 	Token string `json:"token" binding:"required"`
@@ -25,6 +25,13 @@ type authResponse struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+var domain string
+
+func init() {
+	domain = utils.MustGet("DOMAIN")
+}
+
+//TODO: MOVE BUSINESS LOGIC INTERNAL/AUTHENTICATION
 func AuthenticationHandler(orm *orm.ORM) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var loginDetails loginDetails
@@ -105,7 +112,27 @@ func setAuthResponse(c *gin.Context, authResponse *authResponse) {
 	if authResponse.TokenToStore == "" {
 		c.JSON(401, gin.H{"error": "Incorrect login details"})
 	} else {
-		c.SetCookie("Authorization", authResponse.TokenToStore, authResponse.TTL, "/", "localhost", true, true)
+		c.SetCookie("Authorization", authResponse.TokenToStore, authResponse.TTL, "/", domain, true, true)
 		c.JSON(200, gin.H{"error":""})
+	}
+}
+
+
+type sessionDetails struct {
+}
+
+func LogoutHandler(orm *orm.ORM) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		authCookie, err := c.Request.Cookie("Authorization")
+		if err == nil && authCookie != nil && authCookie.Value != "" {
+			err = session.DestroySession(authCookie.Value)
+
+			if err == nil {
+				c.JSON(200, gin.H{"error":""})
+			} else {
+				logger.Errorfn("LogoutHandler", err)
+				c.JSON(200, gin.H{"error":""})
+			}
+		}
 	}
 }
