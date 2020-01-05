@@ -1,0 +1,9 @@
+type Product {
+    name: String!
+    description: String!
+    price: Float!
+    stock: Int!
+    createdBy: User
+    createdAt: String
+    updatedAt: String
+}

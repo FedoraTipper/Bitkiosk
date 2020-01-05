@@ -50,6 +50,7 @@ func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error)
 	var gqlReturn *models.User
 
 	userDbo, err := tf.GQLInputUserToDBUser(&input, false)
+
 	if err != nil {
 		return nil, err
 	}
@@ -59,37 +60,31 @@ func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error)
 	// Create scoped clean db interface
 	db := r.ORM.DB.New().Begin()
 
-	err = userDbo.BeforeCreate(db)
+	db, err = userDbo.Create(db)
 
-	if err != nil {
-		db, err = orm.CreateObject(userDbo, userDbo, db)
+	if err == nil {
+		gqlReturn, _ = tf.DBUserToGQLUser(userDbo)
+
+		tokenDigest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
+
+		db, err = (&dbm.AuthenticationMatrix{UserID: userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token: tokenDigest}).Create(db)
+
+		var dateOfBirth *time.Time
+		dateOfBirth, err = date.ParseSqlDate(*input.DateOfBirth)
 
 		if err == nil {
-			gqlReturn, _ = tf.DBUserToGQLUser(userDbo)
+			userProfileDbo := &dbm.UserProfile{
+				UserID:      userDbo.ID,
+				FirstName:   input.FirstName,
+				LastName:    input.LastName,
+				DateOfBirth: dateOfBirth,
+			}
 
-			tokenDigest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
-
-			authenticationMatrixDbo := &dbm.AuthenticationMatrix{UserID: userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token: tokenDigest}
-
-			db, err = orm.CreateObject(authenticationMatrixDbo, authenticationMatrixDbo, db)
-
-			var dateOfBirth *time.Time
-			dateOfBirth, err = date.ParseSqlDate(*input.DateOfBirth)
+			db, err = userProfileDbo.Create(db)
 
 			if err == nil {
-				userProfileDbo := &dbm.UserProfile{
-					UserID:      userDbo.ID,
-					FirstName:   input.FirstName,
-					LastName:    input.LastName,
-					DateOfBirth: dateOfBirth,
-				}
-
-				db, err = orm.CreateObject(userProfileDbo, userProfileDbo, db)
-
-				if err == nil {
-					if gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(userProfileDbo); err == nil {
-						gqlReturn.UserProfile = gqlUserProfile
-					}
+				if gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(userProfileDbo); err == nil {
+					gqlReturn.UserProfile = gqlUserProfile
 				}
 			}
 		}

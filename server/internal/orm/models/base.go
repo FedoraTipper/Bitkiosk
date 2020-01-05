@@ -1,6 +1,7 @@
 package models
 
 import (
+	"github.com/jinzhu/gorm"
 	"time"
 )
 
@@ -16,4 +17,14 @@ type BaseModel struct {
 type BaseModelSoftDelete struct {
 	BaseModel
 	DeletedAt *time.Time `sql:"index"`
+}
+
+func CreateObject(objToCreate interface{}, objToReturn interface{}, db *gorm.DB) (dbToReturn *gorm.DB, err error) {
+	dbToReturn = db.Create(objToCreate).First(objToReturn)
+
+	if db.Error != nil {
+		err = db.Error
+	}
+
+	return dbToReturn, err
 }

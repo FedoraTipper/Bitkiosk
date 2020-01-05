@@ -3,7 +3,6 @@ package models
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
-	"time"
 )
 
 type User struct {
@@ -12,12 +11,15 @@ type User struct {
 	Role	uint	`db:"role" gorm:"not null; default:1"`
 }
 
-type UserProfile struct {
-	BaseModelSoftDelete
-	UserID uint `db:"user_id" gorm:"index:user_id_profile_idx"`
-	FirstName *string  `db:"first_name"`
-	LastName  *string  `db:"last_name"`
-	DateOfBirth *time.Time `db:"date_of_birth"`
+
+func (toCreate *User) Create(db *gorm.DB) (*gorm.DB, error) {
+	err := toCreate.BeforeCreate(db)
+
+	if err == nil {
+		db, err = CreateObject(toCreate, toCreate, db)
+	}
+
+	return db, err
 }
 
 func (toCreate *User) BeforeCreate(db *gorm.DB) (err error) {

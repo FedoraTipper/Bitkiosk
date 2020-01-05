@@ -81,13 +81,3 @@ func CloseDbConnectionLogIfError(db *gorm.DB) {
 		log.Error("Unable to close db connection", dbCloseErr.Error())
 	}
 }
-
-func CreateObject(objToCreate interface{}, objToReturn interface{}, db *gorm.DB) (dbToReturn *gorm.DB, err error) {
-	dbToReturn = db.Create(objToCreate).First(objToReturn)
-
-	if db.Error != nil {
-		err = db.Error
-	}
-
-	return dbToReturn, err
-}
