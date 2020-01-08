@@ -5,6 +5,7 @@ import (
 	gql "github.com/fedoratipper/bitkiosk/server/internal/gql/models"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils/date"
+	"github.com/jinzhu/gorm"
 )
 
 // DBUserToGQLUser transforms [user] db input to gql type
@@ -54,3 +55,28 @@ func DBUserProfileToGQLUserProfile(i *dbm.UserProfile) (o *gql.UserProfile, err 
 	return o, err
 }
 
+func GQLUpdateUserProfileToDBUserProfile(i *gql.UpdatedProfile, db *gorm.DB) (*dbm.UserProfile, error) {
+
+	if i.Email == "" {
+		return nil, errors.New("unable to find user profile")
+	}
+
+	var userProfile dbm.UserProfile
+
+	db = db.Joins("JOIN users on users.id = user_profiles.user_id").Where("users.email like ?", i.Email).Find(&userProfile)
+
+	if userProfile.ID == 0 {
+		return nil, errors.New("unable to find user with email " + i.Email)
+	}
+
+	userProfile.FirstName = &i.FirstName
+	userProfile.LastName = &i.LastName
+
+	dateOfBirth, err := date.ParseSqlDate(i.DateOfBirth)
+
+	if err == nil {
+		userProfile.DateOfBirth = dateOfBirth
+	}
+
+	return &userProfile, err
+}

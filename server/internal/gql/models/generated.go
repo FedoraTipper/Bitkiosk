@@ -11,10 +11,21 @@ type NewUser struct {
 	DateOfBirth  *string `json:"dateOfBirth"`
 }
 
+type Product struct {
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Stock       int     `json:"stock"`
+	CreatedBy   *User   `json:"createdBy"`
+	CreatedAt   *string `json:"createdAt"`
+	UpdatedAt   *string `json:"updatedAt"`
+}
+
 type UpdatedProfile struct {
-	FirstName   *string `json:"firstName"`
-	LastName    *string `json:"lastName"`
-	DateOfBirth *string `json:"dateOfBirth"`
+	Email       string `json:"email"`
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	DateOfBirth string `json:"dateOfBirth"`
 }
 
 type User struct {

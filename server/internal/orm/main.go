@@ -52,9 +52,9 @@ func Factory() (*ORM, error) {
 func CommitOrRollBackIfError(db *gorm.DB, err error) error  {
 
 	if err == nil{
-		db.Commit()
+		db = db.Commit()
 	} else {
-		db.Rollback()
+		db = db.Rollback()
 	}
 
 	return db.Error

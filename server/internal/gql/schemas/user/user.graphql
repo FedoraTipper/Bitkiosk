@@ -24,7 +24,8 @@ type UserProfile {
 }
 
 input UpdatedProfile {
-    firstName: String
-    lastName: String
-    dateOfBirth: String
+    email: String!
+    firstName: String!
+    lastName: String!
+    dateOfBirth: String!
 }
