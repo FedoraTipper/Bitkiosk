@@ -384,3 +384,17 @@ yarn-error.log*
 
 # Avoid dictionaries
 .idea/dictionaries/
+
+# Ignore temp deleted folder
+/kiosk2/
+# Ignore js built maps
+/kiosk/dist/
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

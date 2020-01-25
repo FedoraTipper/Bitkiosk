@@ -8,6 +8,8 @@ import (
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 )
@@ -19,10 +21,15 @@ type loginDetails struct {
 	AuthMethodId int `json:"authMethodId" binding:"required"`
 }
 
+type authenticationDetails struct {
+	TokenToStore string
+	TTL          int
+	RefreshToken string
+}
+
 type authResponse struct {
+	Error string `json:"error"`
 	TokenToStore string `json:"tokenToStore"`
-	TTL          int    `json:"TTL"`
-	RefreshToken string `json:"refreshToken"`
 }
 
 var domain string
@@ -46,7 +53,7 @@ func AuthenticationHandler(orm *orm.ORM) gin.HandlerFunc {
 			return
 		}
 
-		var authDetails authResponse
+		var authDetails authenticationDetails
 
 		var storedUserAuthMatrix dbm.AuthenticationMatrix
 		var user dbm.User
@@ -93,7 +100,7 @@ func AuthenticationHandler(orm *orm.ORM) gin.HandlerFunc {
 				return
 			}
 
-			authDetails := authResponse{
+			authDetails := authenticationDetails{
 				TokenToStore: sessionToken,
 				TTL:          authMethod.TTL,
 			}
@@ -108,12 +115,26 @@ func AuthenticationHandler(orm *orm.ORM) gin.HandlerFunc {
 }
 
 
-func setAuthResponse(c *gin.Context, authResponse *authResponse) {
-	if authResponse.TokenToStore == "" {
-		c.JSON(401, gin.H{"error": "Incorrect login details"})
+func setAuthResponse(c *gin.Context, authDetails *authenticationDetails) {
+	if authDetails.TokenToStore == "" {
+		c.JSON(401, gin.H{
+				"error":       "Incorrect login details",
+			})
 	} else {
-		c.SetCookie("Authorization", authResponse.TokenToStore, authResponse.TTL, "/", domain, true, true)
-		c.JSON(200, gin.H{"error":""})
+		cookie := &http.Cookie{
+			Name:	  "Cookie",
+			Value:    url.QueryEscape(authDetails.TokenToStore),
+			MaxAge:   authDetails.TTL,
+			Path:     "/",
+			Domain:   domain,
+			Secure:   true,
+			HttpOnly: true,
+		}
+		c.SetCookie("Authorization", authDetails.TokenToStore, authDetails.TTL, "/", domain, false, true)
+		c.Header("Authorization", cookie.String())
+		c.JSON(200, gin.H{
+			"error":"",
+		})
 	}
 }
 

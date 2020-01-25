@@ -29,15 +29,16 @@ func Run(orm *orm.ORM) {
 	endpoint := "http://" + host + ":" + port
 
 	r := gin.Default()
+	// Add auth middleware
+	r.Use(middleware.AddContextToGinRequest())
+	r.Use(middleware.AddCorsToGinRequest())
+	log.Info("Auth middleware injected.")
 	// Handlers
 	// Simple keep-alive/ping handler
 	r.GET("/ping", handlers.Ping())
 	r.POST("/authenticate", handlers.AuthenticationHandler(orm))
 	r.POST("/logout", handlers.LogoutHandler(orm))
 
-	// Add auth middleware
-	r.Use(middleware.AddContextToGinRequest())
-	log.Info("Auth middleware injected.")
 
 	// GraphQL handlers
 	// Playground handler
