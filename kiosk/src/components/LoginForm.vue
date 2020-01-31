@@ -26,6 +26,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
+import routes from "@/router/routes";
 import Authhandler from "@/modules/authentication/authhandler";
 
 @Component
@@ -43,15 +44,15 @@ export default class LoginForm extends Vue {
     if (this.register) {
       new Authhandler().Register();
     } else {
-      console.log("hello");
       const details = {
         identification: this.email,
         token: this.password,
         authMethodId: 1
       };
-      console.log(details);
       new Authhandler().Login(details).then(result => {
-        console.log(result);
+        if (result === true) {
+          this.$router.push(routes.home.path);
+        }
       });
     }
   }

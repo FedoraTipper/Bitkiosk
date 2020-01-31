@@ -1,15 +1,14 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Home from "../views/Home.vue";
-import test from "../views/test.vue";
+import routeDefinitions from "./routes";
 
 Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/",
-    name: "home",
-    component: Home
+    path: routeDefinitions.home.path,
+    name: routeDefinitions.home.name,
+    component: routeDefinitions.home.component
   },
   {
     path: "/about",
@@ -21,10 +20,15 @@ const routes = [
       import(/* webpackChunkName: "about" */ "../views/About.vue")
   },
   {
-    path: "/test",
-    name: "test",
-    component: test
+    path: routeDefinitions.login.path,
+    name: routeDefinitions.login.name,
+    component: routeDefinitions.login.component
   },
+  {
+    path: routeDefinitions.signup.path,
+    name: routeDefinitions.signup.name,
+    component: routeDefinitions.signup.component
+  }
 ];
 
 const router = new VueRouter({
