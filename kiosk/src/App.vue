@@ -36,6 +36,7 @@ export default {
   components: {
     Navbar
   },
-  mounted() {}
+  mounted() {
+  }
 };
 </script>

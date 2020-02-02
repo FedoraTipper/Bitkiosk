@@ -8,7 +8,7 @@
             <LoginForm :register="false" actionButtonText="Login" />
           </div>
           <p class="has-text-grey">
-            <a href="/register">Sign Up</a> &nbsp;·&nbsp;
+            <a :href="this.routeDefinitions.signup.path">Sign Up</a> &nbsp;·&nbsp;
             <a href="../">Forgot Password</a> &nbsp;·&nbsp;
             <a href="../">Need Help?</a>
           </p>

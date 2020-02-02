@@ -28,6 +28,7 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import routes from "@/router/routes";
 import Authhandler from "@/modules/authentication/authhandler";
+import { UserModule } from "@/store/modules/user";
 
 @Component
 export default class LoginForm extends Vue {
@@ -50,7 +51,8 @@ export default class LoginForm extends Vue {
         authMethodId: 1
       };
       new Authhandler().Login(details).then(result => {
-        if (result === true) {
+        if (result) {
+          UserModule.setUserProfile(this.email);
           this.$router.push(routes.home.path);
         }
       });

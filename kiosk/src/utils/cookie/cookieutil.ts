@@ -1,6 +1,18 @@
+import cookie from 'js-cookie';
 
 export default class CookieUtil {
-  constructor() { }
+  constructor() {}
+
+  public getAuthorizationCookie() : string {
+    let authCookie = cookie.get('Authorization');
+
+    if (authCookie == undefined) {
+      console.log("Unable to retrieve authorization cookie. Maybe missing?");
+      return "";
+    } else {
+      return authCookie;
+    }
+  }
 
   public convertHeaderToCookieJson(headerString: string): {} {
     let headerSplit: string[] = headerString.split(";");

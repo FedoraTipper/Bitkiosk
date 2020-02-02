@@ -10,18 +10,18 @@
     </template>
 
     <template slot="start">
-      <b-navbar-item :href="this.routeDefinitions.home.path">
-        Home
+      <b-navbar-item @click="$router.push(routeDefinitions.home.path)">
+        Home {{userFirstName}}
       </b-navbar-item>
     </template>
 
     <template slot="end">
       <b-navbar-item tag="div">
         <div class="buttons">
-          <a class="button is-primary" :href="this.routeDefinitions.signup.path">
+          <a class="button is-primary" @click="$router.push(routeDefinitions.signup.path)">
             <strong>Sign up</strong>
           </a>
-          <a class="button is-light" :href="this.routeDefinitions.login.path">
+          <a class="button is-light" @click="$router.push(routeDefinitions.login.path)">
             Log in
           </a>
         </div>
@@ -31,13 +31,23 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import {Component, Prop, PropSync, Vue} from "vue-property-decorator";
+import { UserModule } from "@/store/modules/user";
 
 @Component
 export default class NavBar extends Vue{
   constructor() {
     super();
   }
+
+  get userFirstName(): String {
+    const userProfile = UserModule.userProfile;
+    if (userProfile)
+      return userProfile.firstName;
+
+    return "a";
+  }
+
 }
 
 </script>

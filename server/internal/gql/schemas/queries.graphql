@@ -1,7 +1,7 @@
 type Query {
     # users
     users: [User]!
-    userProfile(user_id: Int): UserProfile!
+    userProfile(email: String): UserProfile!
 
     # authentication
     #authenticate(authDetails: loginDetails!): AuthResponse!

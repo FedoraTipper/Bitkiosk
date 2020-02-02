@@ -9,6 +9,7 @@ import (
 	tf "github.com/fedoratipper/bitkiosk/server/internal/gql/resolvers/transformations"
 	"github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/actions"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 )
 
@@ -32,17 +33,25 @@ func (r *mutationResolver) UpdateUserProfile(ctx context.Context, input gqlModel
 	return nil, errors.New("not authenticated for query")
 }
 
-func (r *queryResolver) UserProfile(ctx context.Context, userId *int) (*gqlModels.UserProfile, error) {
+func (r *queryResolver) UserProfile(ctx context.Context, email *string) (*gqlModels.UserProfile, error) {
 	authLevel, err := authhandler.GetAuthLevelFromSession(ctx)
 
-	if authLevel == nil {
+	if authLevel == nil || authLevel.AuthLevel == session.NoAuth {
 		return nil, errors.New("not authenticated for query")
 	}
 
-	if authLevel.AuthLevel == session.UserAuth && *userId == int(authLevel.UID) {
-		return getUserProfile(r, authLevel.UID)
+	var userToFind *dbm.User
+
+	userToFind = actions.GetUserWithEmail(*email, r.ORM.DB.New())
+
+	if userToFind == nil {
+		return nil, errors.New("Unable to find user with email " + *email)
+	}
+
+	if authLevel.AuthLevel == session.UserAuth && int(userToFind.ID) == authLevel.UID {
+		return getUserProfile(r, int(userToFind.ID))
 	} else if authLevel.AuthLevel == session.AdminAuth	{
-		return getUserProfile(r, authLevel.UID)
+		return getUserProfile(r, int(userToFind.ID))
 	} else {
 		if err != nil {
 			logger.Error("Unable to resolve auth level with Users resolver. \n" + err.Error())
@@ -57,11 +66,6 @@ func getUserProfile(r *queryResolver, uid int) (*gqlModels.UserProfile, error) {
 	db := r.ORM.DB.New()
 
 	db.Where("user_id = ?", uid).First(&userProfile)
-	closeErr := db.Close()
-
-	if closeErr != nil {
-		logger.Errorfn("getUserProfile", closeErr)
-	}
 
 	gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(&userProfile)
 
