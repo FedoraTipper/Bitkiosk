@@ -40,12 +40,11 @@ export default class NavBar extends Vue{
     super();
   }
 
-  get userFirstName(): String {
-    const userProfile = UserModule.userProfile;
-    if (userProfile)
-      return userProfile.firstName;
-
-    return "a";
+  get userFirstName(){
+    if (UserModule.userProfile !== undefined) {
+      return UserModule.userProfile.firstName
+    }
+    return 'a'
   }
 
 }
