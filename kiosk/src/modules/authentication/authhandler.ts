@@ -19,7 +19,6 @@ export default class AuthHandler {
           new NotificationUtil().displayError("Incorrect login details");
           resolve(false);
         }
-
         resolve(true);
       });
     });
@@ -48,6 +47,27 @@ export default class AuthHandler {
         })
         .catch(error => {
           if (error.response.status === 401) {
+            console.log(error.response.data);
+            resolve(error.response.data);
+          }
+        });
+    });
+  }
+
+  async Logout(): Promise<boolean> {
+    return new Promise(async resolve => {
+      await Axios.post(
+        config.default.BASE_PATH + config.default.PATH.LOGOUT,
+        {},
+        {
+          withCredentials: true
+        }
+      )
+        .then(response => {
+          resolve(true);
+        })
+        .catch(error => {
+          if (error.response.status === 500) {
             console.log(error.response.data);
             resolve(error.response.data);
           }

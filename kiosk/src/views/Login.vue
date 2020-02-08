@@ -5,7 +5,7 @@
         <div class="column is-5 is-offset-4">
           <h3 class="title has-text-grey-dark">User Login</h3>
           <div class="box">
-            <LoginForm :register="false" actionButtonText="Login" />
+            <LoginForm/>
           </div>
           <p class="has-text-grey">
             <a :href="this.routeDefinitions.signup.path">Sign Up</a> &nbsp;·&nbsp;

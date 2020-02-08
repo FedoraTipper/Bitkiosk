@@ -12,3 +12,11 @@ func GetUserWithEmail(email string, db *gorm.DB) *models.User {
 
 	return &user
 }
+
+func GetUserWithId(id int, db *gorm.DB) *models.User {
+	var user models.User
+
+	db = db.Where("id = ?", id).Find(&user)
+
+	return &user
+}

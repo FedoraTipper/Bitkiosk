@@ -11,12 +11,12 @@
 
     <template slot="start">
       <b-navbar-item @click="$router.push(routeDefinitions.home.path)">
-        Home {{userFirstName}}
+        Home
       </b-navbar-item>
     </template>
 
     <template slot="end">
-      <b-navbar-item tag="div">
+      <b-navbar-item id="loginNav" tag="div" v-if="!userLoggedIn">
         <div class="buttons">
           <a class="button is-primary" @click="$router.push(routeDefinitions.signup.path)">
             <strong>Sign up</strong>
@@ -26,12 +26,20 @@
           </a>
         </div>
       </b-navbar-item>
+      <b-navbar-item id="logoutNav" tag="div" v-else>
+        <strong style="margin-right: 10px">Welcome {{userFirstName}}</strong>
+        <div class="buttons">
+          <a class="button is-primary" @click="$router.push(routeDefinitions.logout.path)">
+            Log out
+          </a>
+        </div>
+      </b-navbar-item>
     </template>
   </b-navbar>
 </template>
 
 <script lang="ts">
-import {Component, Prop, PropSync, Vue} from "vue-property-decorator";
+import {Component, Vue} from "vue-property-decorator";
 import { UserModule } from "@/store/modules/user";
 
 @Component
@@ -40,13 +48,12 @@ export default class NavBar extends Vue{
     super();
   }
 
-  get userFirstName(){
-    if (UserModule.userProfile !== undefined) {
-      return UserModule.userProfile.firstName
-    }
-    return 'a'
+  get userFirstName() {
+    return UserModule.userProfile.firstName;
   }
 
+  get userLoggedIn() {
+    return UserModule.userProfile.loggedIn;
+  }
 }
-
 </script>

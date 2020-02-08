@@ -83,7 +83,7 @@ func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error)
 			db, err = userProfileDbo.Create(db)
 
 			if err == nil {
-				if gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(userProfileDbo); err == nil {
+				if gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(userProfileDbo, userDbo); err == nil {
 					gqlReturn.UserProfile = gqlUserProfile
 				}
 			}

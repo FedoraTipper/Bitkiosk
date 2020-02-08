@@ -8,7 +8,7 @@ type AuthMethod struct {
 
 var DefaultAuth = &AuthMethod{
 	ID:  1,
-	TTL: 30,
+	TTL: 6000,
 	RefreshTTL: 3600, // 60 hours
 }
 

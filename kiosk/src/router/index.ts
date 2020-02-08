@@ -28,6 +28,11 @@ const routes = [
     path: routeDefinitions.signup.path,
     name: routeDefinitions.signup.name,
     component: routeDefinitions.signup.component
+  },
+  {
+    path: routeDefinitions.logout.path,
+    name: routeDefinitions.logout.name,
+    component: routeDefinitions.logout.component
   }
 ];
 

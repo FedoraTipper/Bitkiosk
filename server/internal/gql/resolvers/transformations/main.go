@@ -40,16 +40,38 @@ func GQLInputUserToDBUser(i *gql.NewUser, update bool) (o *dbm.User, err error) 
 	return o, err
 }
 
-func DBUserProfileToGQLUserProfile(i *dbm.UserProfile) (o *gql.UserProfile, err error) {
+func DBUserProfileToGQLUserProfile(up *dbm.UserProfile, u *dbm.User) (o *gql.UserProfile, err error) {
 
-	if i.ID == 0 {
+	if u.ID == 0 {
+		return nil, errors.New("unable to find user")
+	}
+
+	if up.ID == 0 {
 		return nil, errors.New("unable to find user profile")
 	}
 
 	o = &gql.UserProfile{
-		FirstName:   i.FirstName,
-		LastName:    i.LastName,
-		DateOfBirth: date.FormatToSqlDate(i.DateOfBirth),
+		FirstName:   up.FirstName,
+		LastName:    up.LastName,
+		Email: 		 &u.Email,
+		DateOfBirth: date.FormatToSqlDate(up.DateOfBirth),
+	}
+
+	return o, err
+}
+
+
+func UpdatedDBUserProfileToGQLUserProfile(up *dbm.UserProfile, email string) (o *gql.UserProfile, err error) {
+
+	if up.ID == 0 {
+		return nil, errors.New("unable to find user profile")
+	}
+
+	o = &gql.UserProfile{
+		FirstName:   up.FirstName,
+		LastName:    up.LastName,
+		Email: 		 &email,
+		DateOfBirth: date.FormatToSqlDate(up.DateOfBirth),
 	}
 
 	return o, err

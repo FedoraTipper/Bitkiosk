@@ -1,10 +1,18 @@
-import {VuexModule, Module, getModule, MutationAction} from "vuex-module-decorators";
-import store from "@/store"
-import {UserProfile} from "@/models/user";
+import {
+  VuexModule,
+  Module,
+  getModule,
+  MutationAction,
+  Mutation
+} from "vuex-module-decorators";
+import store from "@/store";
+import { UserProfile } from "@/models/userprofile.ts";
 import UserAPI from "@/modules/api/user/userapi";
+import NotificationUtil from "@/utils/notification/notificationutil";
+import AuthHandler from "@/modules/authentication/authhandler";
 
 export interface IUserState {
-  userProfile: UserProfile | undefined;
+  userProfile: UserProfile;
 }
 
 @Module({
@@ -14,18 +22,26 @@ export interface IUserState {
   store
 })
 class User extends VuexModule implements IUserState {
-  public get userProfile(): UserProfile | undefined {
-    return this.userProfile;
+  userProfile: UserProfile = new UserProfile();
+
+  @Mutation
+  async setUserProfile(displayError: boolean) {
+    new UserAPI().fetchUserProfile("").then(result => {
+      this.userProfile = result;
+
+      if (displayError) {
+        if (this.userProfile.loggedIn !== true) {
+          new NotificationUtil().displayError(
+            "Unable to retrieve your user profile. :("
+          );
+        }
+      }
+    });
   }
 
-  @MutationAction({ mutate: ["userProfile"] })
-  async setUserProfile(email: string) {
-    let userProfile: UserProfile | null = null;
-    new UserAPI().fetchUserProfile(email).then(result => {
-      console.log(result);
-      userProfile = result;
-    });
-    return { userProfile };
+  @Mutation
+  async destroyUserSession() {
+    this.userProfile = new UserProfile();
   }
 }
 

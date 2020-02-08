@@ -19,6 +19,7 @@ type UserProfile {
     firstName: String
     lastName: String
     dateOfBirth: String
+    email: String
     createdAt: String!
     updatedAt: String
 }

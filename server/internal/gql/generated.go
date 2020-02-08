@@ -74,6 +74,7 @@ type ComplexityRoot struct {
 	UserProfile struct {
 		CreatedAt   func(childComplexity int) int
 		DateOfBirth func(childComplexity int) int
+		Email       func(childComplexity int) int
 		FirstName   func(childComplexity int) int
 		LastName    func(childComplexity int) int
 		UpdatedAt   func(childComplexity int) int
@@ -245,6 +246,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserProfile.DateOfBirth(childComplexity), true
 
+	case "UserProfile.email":
+		if e.complexity.UserProfile.Email == nil {
+			break
+		}
+
+		return e.complexity.UserProfile.Email(childComplexity), true
+
 	case "UserProfile.firstName":
 		if e.complexity.UserProfile.FirstName == nil {
 			break
@@ -382,6 +390,7 @@ type UserProfile {
     firstName: String
     lastName: String
     dateOfBirth: String
+    email: String
     createdAt: String!
     updatedAt: String
 }
@@ -1248,6 +1257,40 @@ func (ec *executionContext) _UserProfile_dateOfBirth(ctx context.Context, field 
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.DateOfBirth, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _UserProfile_email(ctx context.Context, field graphql.CollectedField, obj *models.UserProfile) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "UserProfile",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Email, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2773,6 +2816,8 @@ func (ec *executionContext) _UserProfile(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._UserProfile_lastName(ctx, field, obj)
 		case "dateOfBirth":
 			out.Values[i] = ec._UserProfile_dateOfBirth(ctx, field, obj)
+		case "email":
+			out.Values[i] = ec._UserProfile_email(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._UserProfile_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {

@@ -1,11 +1,11 @@
 <template>
   <section class="hero is-light is-fullheight-with-navbar is-bold">
     <div class="hero-body">
-      <div class="container has-text-centered">
-        <div class="column is-5 is-offset-4">
+      <div class="container">
+        <div class="column">
           <h3 class="title has-text-grey-dark">User Registration</h3>
           <div class="box">
-            <LoginForm :register="true" actionButtonText="Sign Up" />
+            <RegisterForm/>
           </div>
           <p class="has-text-grey">
             <a :href="this.routeDefinitions.login.path">Have an account?</a> &nbsp;·&nbsp;
@@ -18,12 +18,12 @@
 </template>
 
 <script>
-import LoginForm from "@/components/LoginForm.vue";
+import RegisterForm from "@/components/RegisterForm.vue";
 
 export default {
   name: "Register",
   components: {
-    LoginForm
+    RegisterForm
   },
   mounted() {}
 };

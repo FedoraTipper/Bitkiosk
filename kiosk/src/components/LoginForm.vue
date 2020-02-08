@@ -14,13 +14,11 @@
     >
       <b-input v-model="password" type="password" />
     </b-field>
-    <b-checkbox v-if="!register" v-model="rememberMe">
+    <b-checkbox v-model="rememberMe">
       Remember me
     </b-checkbox>
     <br />
-    <b-button type="is-primary" @click="performLoginOrRegister">
-      {{ actionButtonText }}
-    </b-button>
+    <b-button type="is-primary" @click="performLoginAction">Login</b-button>
   </div>
 </template>
 
@@ -37,26 +35,19 @@ export default class LoginForm extends Vue {
   passwordErrors: string[] = [];
   emailErrors: string[] = [];
   rememberMe: boolean = false;
-  @Prop({ type: Boolean, required: true }) register!: boolean;
-  @Prop({ type: String, required: true }) actionButtonText!: string;
 
-  performLoginOrRegister() {
-    console.log(this.register);
-    if (this.register) {
-      new Authhandler().Register();
-    } else {
-      const details = {
-        identification: this.email,
-        token: this.password,
-        authMethodId: 1
-      };
-      new Authhandler().Login(details).then(result => {
-        if (result) {
-          UserModule.setUserProfile(this.email);
-          this.$router.push(routes.home.path);
-        }
-      });
-    }
+  performLoginAction() {
+    const details = {
+      identification: this.email,
+      token: this.password,
+      authMethodId: 1
+    };
+    new Authhandler().Login(details).then(result => {
+      if (result) {
+        UserModule.setUserProfile(true);
+        this.$router.push(routes.home.path);
+      }
+    });
   }
 }
 </script>

@@ -7,9 +7,8 @@ import (
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils"
+	timeUtil "github.com/fedoratipper/bitkiosk/server/pkg/utils/time"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"net/url"
 	"strconv"
 	"time"
 )
@@ -121,28 +120,14 @@ func setAuthResponse(c *gin.Context, authDetails *authenticationDetails) {
 				"error":       "Incorrect login details",
 			})
 	} else {
-		cookie := &http.Cookie{
-			Name:	  "Cookie",
-			Value:    url.QueryEscape(authDetails.TokenToStore),
-			MaxAge:   authDetails.TTL,
-			Path:     "/",
-			Domain:   domain,
-			Secure:   true,
-			HttpOnly: true,
-		}
-		c.SetCookie("Authorization", authDetails.TokenToStore, authDetails.TTL, "/", domain, false, true)
-		c.Header("Authorization", cookie.String())
+		c.SetCookie("Authorization", authDetails.TokenToStore, timeUtil.ConvertMinutesToSeconds(authDetails.TTL), "/", domain, false, true)
 		c.JSON(200, gin.H{
 			"error":"",
 		})
 	}
 }
 
-
-type sessionDetails struct {
-}
-
-func LogoutHandler(orm *orm.ORM) gin.HandlerFunc {
+func LogoutHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authCookie, err := c.Request.Cookie("Authorization")
 		if err == nil && authCookie != nil && authCookie.Value != "" {
@@ -155,5 +140,7 @@ func LogoutHandler(orm *orm.ORM) gin.HandlerFunc {
 				c.JSON(200, gin.H{"error":""})
 			}
 		}
+
+		c.SetCookie("Authorization", "", 0, "", "", false, false)
 	}
 }
