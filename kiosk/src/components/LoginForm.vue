@@ -14,9 +14,9 @@
     >
       <b-input v-model="password" type="password" />
     </b-field>
-    <b-checkbox v-model="rememberMe">
-      Remember me
-    </b-checkbox>
+<!--    <b-checkbox v-model="rememberMe">-->
+<!--      Remember me-->
+<!--    </b-checkbox>-->
     <br />
     <b-button type="is-primary" @click="performLoginAction">Login</b-button>
   </div>

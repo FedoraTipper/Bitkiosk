@@ -10,7 +10,7 @@
     </template>
 
     <template slot="start">
-      <b-navbar-item @click="$router.push(routeDefinitions.home.path)">
+      <b-navbar-item @click="pushToPage(routeDefinitions.home.path)">
         Home
       </b-navbar-item>
     </template>
@@ -18,10 +18,10 @@
     <template slot="end">
       <b-navbar-item id="loginNav" tag="div" v-if="!userLoggedIn">
         <div class="buttons">
-          <a class="button is-primary" @click="$router.push(routeDefinitions.signup.path)">
+          <a class="button is-primary" @click="pushToPage(routeDefinitions.signup.path)">
             <strong>Sign up</strong>
           </a>
-          <a class="button is-light" @click="$router.push(routeDefinitions.login.path)">
+          <a class="button is-light" @click="pushToPage(routeDefinitions.login.path)">
             Log in
           </a>
         </div>
@@ -29,7 +29,7 @@
       <b-navbar-item id="logoutNav" tag="div" v-else>
         <strong style="margin-right: 10px">Welcome {{userFirstName}}</strong>
         <div class="buttons">
-          <a class="button is-primary" @click="$router.push(routeDefinitions.logout.path)">
+          <a class="button is-primary" @click="pushToPage(routeDefinitions.logout.path)">
             Log out
           </a>
         </div>

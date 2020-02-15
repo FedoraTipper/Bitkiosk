@@ -3,7 +3,7 @@ import {
   Module,
   getModule,
   MutationAction,
-  Mutation
+  Mutation, Action
 } from "vuex-module-decorators";
 import store from "@/store";
 import { UserProfile } from "@/models/userprofile.ts";

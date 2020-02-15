@@ -11,4 +11,12 @@ export default class Mixin extends Vue {
     this.config = config;
     this.routeDefinitions = routeDefinitions;
   }
+
+  pushToPage(path: string) {
+    if (this.$router.currentRoute.path != path) {
+      this.$router.push(path);
+    } else {
+      this.$router.go(0);
+    }
+  }
 }

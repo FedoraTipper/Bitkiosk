@@ -30,7 +30,6 @@
 
 <script>
 import Navbar from "@/components/Navbar";
-import { UserModule } from "@/store/modules/user";
 
 
 export default {
@@ -38,10 +37,6 @@ export default {
   components: {
     Navbar
   },
-  mounted() {
-    if (!UserModule.userProfile.loggedIn) {
-      UserModule.setUserProfile(false);
-    }
-  }
+  mounted() {}
 };
 </script>

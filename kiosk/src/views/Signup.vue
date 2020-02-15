@@ -2,13 +2,20 @@
   <section class="hero is-light is-fullheight-with-navbar is-bold">
     <div class="hero-body">
       <div class="container">
-        <div class="column">
+        <div class="columns is-centered" style="margin-bottom: 2rem">
           <h3 class="title has-text-grey-dark">User Registration</h3>
-          <div class="box">
-            <RegisterForm/>
+        </div>
+        <div class="columns is-centered is-vertical">
+          <div class="box column is-4 is-vertical">
+            <RegisterForm />
           </div>
-          <p class="has-text-grey">
-            <a :href="this.routeDefinitions.login.path">Have an account?</a> &nbsp;·&nbsp;
+        </div>
+        <div class="columns is-centered">
+          <p class="has-text-grey" style="margin-top: 1rem">
+            <a @click="pushToPage(routeDefinitions.login.path)">
+              Have an account?
+            </a>
+            &nbsp;·&nbsp;
             <a href="../">Need Help?</a>
           </p>
         </div>
@@ -17,14 +24,19 @@
   </section>
 </template>
 
-<script>
+<script lang="ts">
+import { AuthMixin } from "@/mixins/authmixin";
+import Component, { mixins } from "vue-class-component";
 import RegisterForm from "@/components/RegisterForm.vue";
 
-export default {
-  name: "Register",
+@Component({
   components: {
     RegisterForm
-  },
-  mounted() {}
-};
+  }
+})
+export default class Login extends mixins(AuthMixin) {
+  constructor() {
+    super();
+  }
+}
 </script>
