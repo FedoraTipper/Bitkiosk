@@ -32,7 +32,7 @@
         >
           <b-input v-model="password" type="password" icon="lock" />
         </b-field>
-        <b-progress :value="passwordScore" v-if="this.password.length > 0 "></b-progress>
+        <b-progress :value="passwordScore" :type="passwordType" v-if="this.password.length > 0 "></b-progress>
       </div>
     </div>
     <b-button type="is-primary" @click="performRegister">Sign Up</b-button>
@@ -44,6 +44,7 @@ import {Component, Prop, Vue, Watch} from "vue-property-decorator";
 import EmailValidator from "email-validator";
 import Authhandler from "@/modules/authentication/authhandler";
 import PasswordUtil from "@/utils/password/passwordutil";
+import { IPasswordScore } from "@/models/passwordrequirement/passwordrequirement.d.ts";
 
 @Component
 export default class RegisterForm extends Vue {
@@ -52,6 +53,7 @@ export default class RegisterForm extends Vue {
   dateOfBirth: string = "";
   password: string = "";
   passwordScore: number = 0;
+  passwordType: string = "is-danger";
   email: string = "";
   passwordErrors: string[] = [];
   emailErrors: string[] = [];
@@ -70,7 +72,7 @@ export default class RegisterForm extends Vue {
   }
 
   validateForm(): boolean {
-    return this.validateEmail(this.email);
+    return this.validateEmail(this.email) && this.validatePassword(this.password);
   }
 
   @Watch('email', {immediate: false})
@@ -85,22 +87,31 @@ export default class RegisterForm extends Vue {
 
   @Watch('password', {immediate: false})
   validatePassword(val: string): boolean {
-    let newScore = 0;
-    console.log("Asdasdasd")
+    let newScore = {} as IPasswordScore;
     if (val != undefined && val.length > 0) {
       newScore = new PasswordUtil().calculatePasswordStrength(val);
     }
-    console.log(":asdasdasdasd")
-    this.passwordScore = newScore;
-    if (this.passwordScore < 50) {
-      this.passwordErrors = [
-        "The password should consist of one uppercase A-Z, number 0-9 and special character [!@#$%]."
-      ];
+    console.log(newScore);
+    if (!newScore.requirementsMet) {
+      this.passwordErrors = ["The password should consist of one uppercase A-Z, number 0-9 and special character [!@#$%]."];
     } else {
       this.passwordErrors = [];
     }
+
+    this.passwordScore = newScore.score;
+
     return this.emailErrors.length < 1;
   }
 
+  @Watch('passwordScore')
+  setPasswordScoreColour(val: number): void {
+    if (val >= 50) {
+      this.passwordType = "is-success";
+    } else if (val >= 35) {
+      this.passwordType = "is-warning";
+    } else {
+      this.passwordType = "is-danger";
+    }
+  }
 }
 </script>

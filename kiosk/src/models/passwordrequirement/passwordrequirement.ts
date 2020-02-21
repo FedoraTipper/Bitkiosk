@@ -1,23 +1,23 @@
 import { IPasswordRequirement } from "@/models/passwordrequirement/passwordrequirement.d.ts";
 
 export default class PasswordRequirement implements IPasswordRequirement{
-  private _regex: string = "";
+  private _regex: RegExp = new RegExp(``);
   private _addedScore: number = 0;
   private _maxCount: number = 0;
   private _minCount: number = 0;
 
-  constructor(Regex: string, addedScore: number, maxCount: number = -1, minCount: number = -1) {
+  constructor(Regex: RegExp, addedScore: number, maxCount: number = -1, minCount: number = -1) {
     this._regex = Regex;
     this._addedScore = addedScore;
     this._maxCount = maxCount;
     this._minCount = minCount;
   }
 
-  get regex(): string {
+  get regex(): RegExp {
     return this._regex;
   }
 
-  set regex(value: string) {
+  set regex(value: RegExp) {
     this._regex = value;
   }
 
@@ -45,3 +45,4 @@ export default class PasswordRequirement implements IPasswordRequirement{
     this._minCount = value;
   }
 }
+

@@ -1,6 +1,11 @@
 export interface IPasswordRequirement {
-  regex: string;
+  regex: RegExp;
   minCount: number;
   maxCount: number;
   addedScore: number;
+}
+
+export interface IPasswordScore {
+  score: number;
+  requirementsMet: boolean;
 }
