@@ -12,13 +12,11 @@ input NewUser {
     authMethodId: Int!
     firstName: String
     lastName: String
-    dateOfBirth: String
 }
 
 type UserProfile {
     firstName: String
     lastName: String
-    dateOfBirth: String
     email: String
     createdAt: String!
     updatedAt: String
@@ -28,5 +26,4 @@ input UpdatedProfile {
     email: String!
     firstName: String!
     lastName: String!
-    dateOfBirth: String!
 }

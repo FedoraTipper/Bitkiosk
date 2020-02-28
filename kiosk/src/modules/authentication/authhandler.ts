@@ -1,9 +1,11 @@
 import {
   LoginDetails,
-  authPayload
-} from "@/modules/authentication/authdetails";
+  authPayload, RegisterDetails
+} from "@/models/authentication/authdetails";
 import Axios from "axios";
 import NotificationUtil from "@/utils/notification/notificationutil";
+import {UserProfile} from "@/models/userprofile";
+import Usergql from "@/modules/graphql/user/usergql";
 
 const config = require("@/utils/config/config");
 
@@ -24,9 +26,13 @@ export default class AuthHandler {
     });
   }
 
-  Register(): boolean {
-    return false;
-  }
+  async Register(registerDetails: RegisterDetails): Promise<boolean> {
+    return new Promise<boolean>(async resolve => {
+      await new Usergql().registerUser().then((response: UserProfile) => {
+      });
+      resolve(true);
+    });
+ }
 
   // @ts-ignore
   async postLogin(details: LoginDetails): Promise<authPayload> {

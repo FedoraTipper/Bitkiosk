@@ -1,5 +1,5 @@
 type Mutation {
     # Users
-    createUser(input: NewUser!): User!
+    createUser(input: NewUser!): String!
     updateUserProfile(input: UpdatedProfile!): UserProfile!
 }

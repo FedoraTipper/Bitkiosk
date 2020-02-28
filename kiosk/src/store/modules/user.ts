@@ -7,9 +7,8 @@ import {
 } from "vuex-module-decorators";
 import store from "@/store";
 import { UserProfile } from "@/models/userprofile.ts";
-import UserAPI from "@/modules/api/user/userapi";
+import UserAPI from "@/modules/graphql/user/usergql";
 import NotificationUtil from "@/utils/notification/notificationutil";
-import AuthHandler from "@/modules/authentication/authhandler";
 
 export interface IUserState {
   userProfile: UserProfile;

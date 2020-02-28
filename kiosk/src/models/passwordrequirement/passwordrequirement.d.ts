@@ -8,4 +8,5 @@ export interface IPasswordRequirement {
 export interface IPasswordScore {
   score: number;
   requirementsMet: boolean;
+  errorMessages: Array<string>;
 }

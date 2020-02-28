@@ -5,12 +5,14 @@ export default class PasswordRequirement implements IPasswordRequirement{
   private _addedScore: number = 0;
   private _maxCount: number = 0;
   private _minCount: number = 0;
+  private _errorMessage: string = "";
 
-  constructor(Regex: RegExp, addedScore: number, maxCount: number = -1, minCount: number = -1) {
+  constructor(Regex: RegExp, addedScore: number, errorMessage: string, maxCount: number = -1, minCount: number = -1) {
     this._regex = Regex;
     this._addedScore = addedScore;
     this._maxCount = maxCount;
     this._minCount = minCount;
+    this._errorMessage = errorMessage;
   }
 
   get regex(): RegExp {
@@ -43,6 +45,14 @@ export default class PasswordRequirement implements IPasswordRequirement{
 
   set minCount(value: number) {
     this._minCount = value;
+  }
+
+  get errorMessage(): string {
+    return this._errorMessage;
+  }
+
+  set errorMessage(value: string) {
+    this._errorMessage = value;
   }
 }
 

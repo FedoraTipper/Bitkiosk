@@ -1,9 +1,10 @@
 import { UserProfile } from "../../../models/userprofile";
 import gqlfactory from "@/utils/gqlclient/gqlfactory";
-import UserQueries from "@/modules/api/user/userqueries";
+import UserQueries from "@/modules/graphql/queries/userqueries";
 import NotificationUtil from "@/utils/notification/notificationutil";
+import {RegisterDetails} from "@/models/authentication/authdetails";
 
-export default class UserAPI {
+export default class Usergql {
   constructor() {}
 
   async fetchUserProfile(email: string | null): Promise<UserProfile> {
@@ -30,6 +31,12 @@ export default class UserAPI {
         });
 
       resolve(userProfile);
+    });
+  }
+
+  async registerUser(registerDetails: RegisterDetails): Promise<boolean> {
+    return new Promise<boolean>(async resolve => {
+      let signUpDetails =
     });
   }
 }

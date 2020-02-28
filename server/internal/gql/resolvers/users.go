@@ -11,12 +11,10 @@ import (
 	logger "github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
-	"github.com/fedoratipper/bitkiosk/server/pkg/utils/date"
-	"time"
 )
 
 // CreateUser creates a record
-func (r *mutationResolver) CreateUser(ctx context.Context, input models.NewUser) (*models.User, error) {
+func (r *mutationResolver) CreateUser(ctx context.Context, input models.NewUser) (string, error) {
 	return userCreate(r, input)
 }
 
@@ -34,7 +32,7 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (bool, err
 func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 	authLevel, err := authhandler.GetAuthLevelFromSession(ctx)
 
-	if authLevel.AuthLevel == session.AdminAuth {
+	if authLevel != nil && authLevel.AuthLevel == session.AdminAuth {
 		return userList(r)
 	} else {
 		if err != nil {
@@ -46,13 +44,13 @@ func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 }
 
 // ## Helper functions
-func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error) {
-	var gqlReturn *models.User
+func userCreate(r *mutationResolver, input models.NewUser) (string, error) {
+	var gqlReturn string
 
 	userDbo, err := tf.GQLInputUserToDBUser(&input, false)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	userDbo.Role = session.UserAuth
@@ -63,29 +61,21 @@ func userCreate(r *mutationResolver, input models.NewUser) (*models.User, error)
 	db, err = userDbo.Create(db)
 
 	if err == nil {
-		gqlReturn, _ = tf.DBUserToGQLUser(userDbo)
-
 		tokenDigest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
 
 		db, err = (&dbm.AuthenticationMatrix{UserID: userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token: tokenDigest}).Create(db)
-
-		var dateOfBirth *time.Time
-		dateOfBirth, err = date.ParseSqlDate(*input.DateOfBirth)
 
 		if err == nil {
 			userProfileDbo := &dbm.UserProfile{
 				UserID:      userDbo.ID,
 				FirstName:   input.FirstName,
 				LastName:    input.LastName,
-				DateOfBirth: dateOfBirth,
 			}
 
 			db, err = userProfileDbo.Create(db)
 
 			if err == nil {
-				if gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(userProfileDbo, userDbo); err == nil {
-					gqlReturn.UserProfile = gqlUserProfile
-				}
+				gqlReturn = "success"
 			}
 		}
 	}
@@ -126,6 +116,7 @@ func userDelete(r *mutationResolver, id string) (bool, error) {
 }
 
 func userList(r *queryResolver) ([]*models.User, error) {
+	//TODO: Comeback to this.
 	entity := "users"
 	var res []*models.User
 
@@ -133,8 +124,6 @@ func userList(r *queryResolver) ([]*models.User, error) {
 
 	var dbRecords = []dbm.User{}
 	db.Find(&dbRecords)
-
-	db.Close()
 
 	if dbRecords == nil {
 		return nil, nil

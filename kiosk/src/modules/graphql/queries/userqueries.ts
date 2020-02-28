@@ -4,7 +4,6 @@ export default {
         userProfile(email: $email) {
           firstName
           lastName
-          dateOfBirth
         }
       }
    `

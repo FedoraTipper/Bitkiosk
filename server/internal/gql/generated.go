@@ -72,17 +72,16 @@ type ComplexityRoot struct {
 	}
 
 	UserProfile struct {
-		CreatedAt   func(childComplexity int) int
-		DateOfBirth func(childComplexity int) int
-		Email       func(childComplexity int) int
-		FirstName   func(childComplexity int) int
-		LastName    func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		Email     func(childComplexity int) int
+		FirstName func(childComplexity int) int
+		LastName  func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
-	CreateUser(ctx context.Context, input models.NewUser) (*models.User, error)
+	CreateUser(ctx context.Context, input models.NewUser) (string, error)
 	UpdateUserProfile(ctx context.Context, input models.UpdatedProfile) (*models.UserProfile, error)
 }
 type QueryResolver interface {
@@ -239,13 +238,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserProfile.CreatedAt(childComplexity), true
 
-	case "UserProfile.dateOfBirth":
-		if e.complexity.UserProfile.DateOfBirth == nil {
-			break
-		}
-
-		return e.complexity.UserProfile.DateOfBirth(childComplexity), true
-
 	case "UserProfile.email":
 		if e.complexity.UserProfile.Email == nil {
 			break
@@ -349,7 +341,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
 #}`},
 	&ast.Source{Name: "internal/gql/schemas/mutations.graphql", Input: `type Mutation {
     # Users
-    createUser(input: NewUser!): User!
+    createUser(input: NewUser!): String!
     updateUserProfile(input: UpdatedProfile!): UserProfile!
 }`},
 	&ast.Source{Name: "internal/gql/schemas/product/product.graphql", Input: `type Product {
@@ -383,13 +375,11 @@ input NewUser {
     authMethodId: Int!
     firstName: String
     lastName: String
-    dateOfBirth: String
 }
 
 type UserProfile {
     firstName: String
     lastName: String
-    dateOfBirth: String
     email: String
     createdAt: String!
     updatedAt: String
@@ -399,7 +389,6 @@ input UpdatedProfile {
     email: String!
     firstName: String!
     lastName: String!
-    dateOfBirth: String!
 }`},
 )
 
@@ -537,10 +526,10 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.User)
+	res := resTmp.(string)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNUser2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUser(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_updateUserProfile(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1223,40 +1212,6 @@ func (ec *executionContext) _UserProfile_lastName(ctx context.Context, field gra
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.LastName, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _UserProfile_dateOfBirth(ctx context.Context, field graphql.CollectedField, obj *models.UserProfile) (ret graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "UserProfile",
-		Field:    field,
-		Args:     nil,
-		IsMethod: false,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DateOfBirth, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2563,12 +2518,6 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 			if err != nil {
 				return it, err
 			}
-		case "dateOfBirth":
-			var err error
-			it.DateOfBirth, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		}
 	}
 
@@ -2596,12 +2545,6 @@ func (ec *executionContext) unmarshalInputUpdatedProfile(ctx context.Context, ob
 		case "lastName":
 			var err error
 			it.LastName, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "dateOfBirth":
-			var err error
-			it.DateOfBirth, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2814,8 +2757,6 @@ func (ec *executionContext) _UserProfile(ctx context.Context, sel ast.SelectionS
 			out.Values[i] = ec._UserProfile_firstName(ctx, field, obj)
 		case "lastName":
 			out.Values[i] = ec._UserProfile_lastName(ctx, field, obj)
-		case "dateOfBirth":
-			out.Values[i] = ec._UserProfile_dateOfBirth(ctx, field, obj)
 		case "email":
 			out.Values[i] = ec._UserProfile_email(ctx, field, obj)
 		case "createdAt":
@@ -3145,10 +3086,6 @@ func (ec *executionContext) unmarshalNUpdatedProfile2githubᚗcomᚋfedoratipper
 	return ec.unmarshalInputUpdatedProfile(ctx, v)
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
-	return ec._User(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v []*models.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -3184,16 +3121,6 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋfedoratipperᚋbit
 	}
 	wg.Wait()
 	return ret
-}
-
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *models.User) graphql.Marshaler {
-	if v == nil {
-		if !ec.HasError(graphql.GetResolverContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUserProfile2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUserProfile(ctx context.Context, sel ast.SelectionSet, v models.UserProfile) graphql.Marshaler {

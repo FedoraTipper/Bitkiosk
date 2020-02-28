@@ -8,7 +8,6 @@ type NewUser struct {
 	AuthMethodID int     `json:"authMethodId"`
 	FirstName    *string `json:"firstName"`
 	LastName     *string `json:"lastName"`
-	DateOfBirth  *string `json:"dateOfBirth"`
 }
 
 type Product struct {
@@ -22,10 +21,9 @@ type Product struct {
 }
 
 type UpdatedProfile struct {
-	Email       string `json:"email"`
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
-	DateOfBirth string `json:"dateOfBirth"`
+	Email     string `json:"email"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 
 type User struct {
@@ -37,10 +35,9 @@ type User struct {
 }
 
 type UserProfile struct {
-	FirstName   *string `json:"firstName"`
-	LastName    *string `json:"lastName"`
-	DateOfBirth *string `json:"dateOfBirth"`
-	Email       *string `json:"email"`
-	CreatedAt   string  `json:"createdAt"`
-	UpdatedAt   *string `json:"updatedAt"`
+	FirstName *string `json:"firstName"`
+	LastName  *string `json:"lastName"`
+	Email     *string `json:"email"`
+	CreatedAt string  `json:"createdAt"`
+	UpdatedAt *string `json:"updatedAt"`
 }

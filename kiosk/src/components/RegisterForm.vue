@@ -2,12 +2,20 @@
   <div>
     <div class="columns">
       <div class="column is-half">
-        <b-field label="First Name">
+        <b-field
+          label="First Name"
+          :type="firstNameError.length > 0 ? 'is-danger' : ''"
+          :message="firstNameError"
+        >
           <b-input type="text" v-model="firstName" />
         </b-field>
       </div>
       <div class="column is-half">
-        <b-field label="Last Name">
+        <b-field
+          label="Last Name"
+          :type="lastNameError.length > 0 ? 'is-danger' : ''"
+          :message="lastNameError"
+        >
           <b-input type="text" v-model="lastName" />
         </b-field>
       </div>
@@ -16,8 +24,8 @@
       <div class="column">
         <b-field
           label="Email"
-          :type="emailErrors.length != 0 ? 'is-danger' : ''"
-          :message="emailErrors"
+          :type="emailError.length > 0 ? 'is-danger' : ''"
+          :message="emailError"
         >
           <b-input type="email" v-model="email" @click="console.log(email)"/>
         </b-field>
@@ -27,8 +35,8 @@
       <div class="column">
         <b-field
           label="Password"
-          :type="passwordErrors.length != 0 ? 'is-danger' : ''"
-          :message="passwordErrors"
+          :type="passwordError.length > 0 ? 'is-danger' : ''"
+          :message="passwordError"
         >
           <b-input v-model="password" type="password" icon="lock" />
         </b-field>
@@ -45,62 +53,73 @@ import EmailValidator from "email-validator";
 import Authhandler from "@/modules/authentication/authhandler";
 import PasswordUtil from "@/utils/password/passwordutil";
 import { IPasswordScore } from "@/models/passwordrequirement/passwordrequirement.d.ts";
+import NotificationUtil from "@/utils/notification/notificationutil";
 
 @Component
 export default class RegisterForm extends Vue {
   firstName: string = "";
+  firstNameError: string = "";
   lastName: string = "";
-  dateOfBirth: string = "";
+  lastNameError: string = "";
   password: string = "";
   passwordScore: number = 0;
   passwordType: string = "is-danger";
   email: string = "";
-  passwordErrors: string[] = [];
-  emailErrors: string[] = [];
-
-  private readonly _PasswordUtil: PasswordUtil = new PasswordUtil();
+  passwordError: string = "";
+  emailError: string = "";
 
   constructor() {
     super();
-    console.log(this._PasswordUtil);
   }
 
   performRegister() {
     if (this.validateForm()) {
       new Authhandler().Register();
+    } else {
+      new NotificationUtil().displayError("Please recheck the registration input fields");
     }
   }
 
   validateForm(): boolean {
-    return this.validateEmail(this.email) && this.validatePassword(this.password);
+    return this.validateEmail(this.email) || this.validatePassword(this.password) && this.validateFirstName(this.firstName) || this.validateLastName(this.lastName);
   }
 
   @Watch('email', {immediate: false})
   validateEmail(val: string) : boolean{
-    if (!EmailValidator.validate(val)) {
-      this.emailErrors = ["Double check your email address."];
-    } else {
-      this.emailErrors = [];
-    }
-    return this.emailErrors.length < 1;
+    this.emailError = !EmailValidator.validate(val) ?  "Double check your email address." : "";
+    return this.emailError.length < 1;
   }
 
   @Watch('password', {immediate: false})
   validatePassword(val: string): boolean {
     let newScore = {} as IPasswordScore;
-    if (val != undefined && val.length > 0) {
+    this.passwordError = "";
+    if (val.length > 0) {
       newScore = new PasswordUtil().calculatePasswordStrength(val);
-    }
-    console.log(newScore);
-    if (!newScore.requirementsMet) {
-      this.passwordErrors = ["The password should consist of one uppercase A-Z, number 0-9 and special character [!@#$%]."];
     } else {
-      this.passwordErrors = [];
+      this.passwordError = "Please input a password.";
+    }
+
+    if (!newScore.requirementsMet && newScore.errorMessages) {
+      let passwordError = "Your password requires";
+      let errorMessages = newScore.errorMessages;
+      for (let i = 0; i < errorMessages.length; i++) {
+        passwordError += " " + errorMessages[i];
+
+        if (i < errorMessages.length - 2) {
+          passwordError += ",";
+        } else if (i == errorMessages.length - 2) {
+          passwordError += " and";
+        } else if (i == errorMessages.length - 1) {
+          passwordError += ".";
+        }
+      }
+      this.passwordError = passwordError;
     }
 
     this.passwordScore = newScore.score;
 
-    return this.emailErrors.length < 1;
+    return this.passwordError.length > 0;
   }
 
   @Watch('passwordScore')
@@ -112,6 +131,19 @@ export default class RegisterForm extends Vue {
     } else {
       this.passwordType = "is-danger";
     }
+  }
+
+  @Watch('firstName')
+  validateFirstName(val: string): boolean {
+    this.firstNameError = val == undefined || val.length == 0 ? "Please input a first name." : "";
+    return this.firstNameError.length <= 0;
+  }
+
+
+  @Watch('lastName')
+  validateLastName(val: string): boolean {
+    this.lastNameError = val == undefined || val.length == 0 ? "Please input a last name." : "";
+    return this.lastNameError.length <= 0;
   }
 }
 </script>

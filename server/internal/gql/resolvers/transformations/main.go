@@ -54,7 +54,6 @@ func DBUserProfileToGQLUserProfile(up *dbm.UserProfile, u *dbm.User) (o *gql.Use
 		FirstName:   up.FirstName,
 		LastName:    up.LastName,
 		Email: 		 &u.Email,
-		DateOfBirth: date.FormatToSqlDate(up.DateOfBirth),
 	}
 
 	return o, err
@@ -71,7 +70,6 @@ func UpdatedDBUserProfileToGQLUserProfile(up *dbm.UserProfile, email string) (o 
 		FirstName:   up.FirstName,
 		LastName:    up.LastName,
 		Email: 		 &email,
-		DateOfBirth: date.FormatToSqlDate(up.DateOfBirth),
 	}
 
 	return o, err
@@ -94,11 +92,5 @@ func GQLUpdateUserProfileToDBUserProfile(i *gql.UpdatedProfile, db *gorm.DB) (*d
 	userProfile.FirstName = &i.FirstName
 	userProfile.LastName = &i.LastName
 
-	dateOfBirth, err := date.ParseSqlDate(i.DateOfBirth)
-
-	if err == nil {
-		userProfile.DateOfBirth = dateOfBirth
-	}
-
-	return &userProfile, err
+	return &userProfile, nil
 }
