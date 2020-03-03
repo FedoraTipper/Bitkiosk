@@ -27,11 +27,15 @@ func (toCreate *AuthenticationMatrix) Create(db *gorm.DB) (*gorm.DB, error) {
 func (toCreate *AuthenticationMatrix) BeforeCreate(db *gorm.DB) (err error) {
 	var authMatrices []AuthenticationMatrix
 
+	if GetAuthMethod(int(toCreate.AuthMethodID)) == nil {
+		return errors.New("Unable to find authentication method")
+	}
+
 	//Can't use same email
 	db.Where("user_id = ? and auth_method_id = ?", toCreate.UserID, toCreate.AuthMethodID).Find(&authMatrices)
 
 	if len(authMatrices) > 0 {
-		return errors.New("authentication matrix for user already exists")
+		return errors.New("Authentication matrix for user already exists")
 	}
 
 	return nil

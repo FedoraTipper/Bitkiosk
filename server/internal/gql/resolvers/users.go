@@ -11,6 +11,8 @@ import (
 	logger "github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
+	"github.com/fedoratipper/bitkiosk/server/pkg/utils/passwordvalidator"
+	"strings"
 )
 
 // CreateUser creates a record
@@ -45,6 +47,18 @@ func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
 
 // ## Helper functions
 func userCreate(r *mutationResolver, input models.NewUser) (string, error) {
+	passwordValidator := passwordvalidator.DefaultPasswordValidator(input.Token)
+
+	errs := passwordValidator.Validate()
+
+	if errs != nil {
+		var jointError []string
+		for _, err := range errs {
+			jointError = append(jointError, err.Error())
+		}
+		return "", errors.New("Please enter enter a password which meets the requirements: " + strings.Join(jointError, ", "))
+	}
+
 	var gqlReturn string
 
 	userDbo, err := tf.GQLInputUserToDBUser(&input, false)
@@ -80,7 +94,7 @@ func userCreate(r *mutationResolver, input models.NewUser) (string, error) {
 		}
 	}
 
-	err = orm.CommitOrRollBackIfError(db, err)
+	orm.CommitOrRollBackIfError(db, err)
 
 	return gqlReturn, err
 }

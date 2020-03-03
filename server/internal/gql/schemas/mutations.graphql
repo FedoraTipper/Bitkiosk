@@ -2,4 +2,9 @@ type Mutation {
     # Users
     createUser(input: NewUser!): String!
     updateUserProfile(input: UpdatedProfile!): UserProfile!
+
+    #Products
+    createProduct(input: NewProduct): Product!
+    updateStockCount(input: ProductStock): Product!
+    updateProduct(input: UpdatedProduct!): Product!
 }

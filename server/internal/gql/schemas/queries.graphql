@@ -3,6 +3,10 @@ type Query {
     users: [User]!
     userProfile(email: String): UserProfile!
 
+    #products
+    loadActiveProducts(): [Product]!
+    loadProduct(SKU: String!): Product!
+
     # authentication
     #authenticate(authDetails: loginDetails!): AuthResponse!
 }

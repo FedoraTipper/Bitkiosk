@@ -1,9 +1,23 @@
 type Product {
+    SKU: String!
     name: String!
     description: String!
     price: Float!
     stock: Int!
-    createdBy: User
+    startDate: String!
+    endDate: String!
+    createdByAdmin: User
     createdAt: String
     updatedAt: String
+}
+
+input newProduct {
+    SKU: String!
+    name: String!
+    description: String!
+    price: Float!
+    stock: Int!
+    startDate: String!
+    endDate: String!
+    createdByAdmin: Int!
 }

@@ -49,7 +49,7 @@ func Factory() (*ORM, error) {
 	return orm, err
 }
 
-func CommitOrRollBackIfError(db *gorm.DB, err error) error  {
+func CommitOrRollBackIfError(db *gorm.DB, err error)  {
 
 	if err == nil{
 		db = db.Commit()
@@ -57,7 +57,9 @@ func CommitOrRollBackIfError(db *gorm.DB, err error) error  {
 		db = db.Rollback()
 	}
 
-	return db.Error
+	if db.Error != nil {
+		log.Error(db.Error)
+	}
 }
 
 func CommitOrRollBackIfErrorAndCloseSession(db *gorm.DB, dbResult *DBResult.DBResult) (result *DBResult.DBResult) {

@@ -100,7 +100,7 @@ func updateUserProfile(r *mutationResolver, input gqlModels.UpdatedProfile) (*gq
 
 	gql, err := tf.UpdatedDBUserProfileToGQLUserProfile(dbo, input.Email)
 
-	err = orm.CommitOrRollBackIfError(db, err)
+	orm.CommitOrRollBackIfError(db, err)
 
 	return gql, err
 }
