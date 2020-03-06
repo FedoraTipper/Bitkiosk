@@ -3,6 +3,7 @@ package transformations
 import (
 	"errors"
 	gql "github.com/fedoratipper/bitkiosk/server/internal/gql/models"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/actions"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils/date"
 	"github.com/jinzhu/gorm"
@@ -16,6 +17,11 @@ func DBUserToGQLUser(i *dbm.User) (o *gql.User, err error) {
 		CreatedAt: date.FormatToSqlDate(&i.CreatedAt),
 		UpdatedAt: date.FormatToSqlDate(i.UpdatedAt),
 	}
+
+	if i.Profile != nil {
+		o.UserProfile, err = DBUserProfileToGQLUserProfile(i.Profile, i)
+	}
+
 	return o, err
 }
 
@@ -93,4 +99,63 @@ func GQLUpdateUserProfileToDBUserProfile(i *gql.UpdatedProfile, db *gorm.DB) (*d
 	userProfile.LastName = &i.LastName
 
 	return &userProfile, nil
+}
+
+func GQLProductToDBProduct(i *gql.NewProduct, adminId uint) (*dbm.Product, error) {
+	product := &dbm.Product{
+		Name: i.Name,
+		Sku: i.Sku,
+		Stock: i.Stock,
+		AdminId: adminId,
+		Description: i.Description,
+		Price: i.Price,
+	}
+
+	parsedStartDate, err := date.ParseSqlDate(i.StartDate)
+
+	if err != nil {
+		return nil, errors.New("Start date: " + err.Error())
+	} else {
+		product.StartDate = parsedStartDate
+	}
+
+	if i.EndDate != nil {
+		parsedEndDate, err := date.ParseSqlDate(*i.EndDate)
+
+		if err != nil {
+			return nil, errors.New("End date: " + err.Error())
+		} else {
+			product.EndDate = parsedEndDate
+		}
+	}
+
+	return product, nil
+}
+
+func DBProductToGQLProduct(p *dbm.Product, db *gorm.DB) (*gql.Product, error) {
+	product := &gql.Product{
+		Sku:           	p.Sku,
+		Name:           p.Name,
+		Description:    p.Description,
+		Price:          p.Price,
+		Stock:          int(p.Stock),
+		StartDate:      *date.FormatToSqlDate(p.StartDate),
+		EndDate:        date.FormatToSqlDate(p.EndDate),
+		CreatedAt:      date.FormatToSqlDate(&p.CreatedAt),
+		UpdatedAt:      date.FormatToSqlDate(p.UpdatedAt),
+	}
+
+	user := actions.GetUserWithId(p.AdminId, db)
+
+	if user != nil {
+		adminUser, err := DBUserToGQLUser(user)
+
+		if err != nil {
+			return nil, err
+		}
+
+		product.CreatedByAdmin = adminUser
+	}
+
+	return product, nil
 }

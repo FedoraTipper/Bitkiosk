@@ -15,6 +15,7 @@ func updateMigration(db *gorm.DB) error {
 		&models.AuthenticationMatrix{},
 		&models.AuthMethod{},
 		&models.UserProfile{},
+		&models.Product{},
 	).Error
 }
 
@@ -23,6 +24,9 @@ func updateConstraints(db *gorm.DB) error {
 		return err
 	}
 	if err := db.Model(&models.UserProfile{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+		return err
+	}
+	if err := db.Model(&models.Product{}).AddForeignKey("admin_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
 		return err
 	}
 	return nil

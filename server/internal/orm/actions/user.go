@@ -8,15 +8,19 @@ import (
 func GetUserWithEmail(email string, db *gorm.DB) *models.User {
 	var user models.User
 
-	db = db.Where("email = ?", email).Find(&user)
+	db.Where("email = ?", email).Find(&user)
+
+	user.Profile = LoadUserProfile(db, user.ID)
 
 	return &user
 }
 
-func GetUserWithId(id int, db *gorm.DB) *models.User {
+func GetUserWithId(id uint, db *gorm.DB) *models.User {
 	var user models.User
 
-	db = db.Where("id = ?", id).Find(&user)
+	db.Where("id = ?", id).Find(&user)
+
+	user.Profile = LoadUserProfile(db, user.ID)
 
 	return &user
 }

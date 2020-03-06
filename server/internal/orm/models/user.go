@@ -11,6 +11,7 @@ type User struct {
 	BaseModelSoftDelete
 	Email     string  `db:"email" gorm:"unique_index;varchar(150);index:user_email_idx"`
 	Role	uint	`db:"role" gorm:"not null; default:1"`
+	Profile *UserProfile
 }
 
 func (toCreate *User) Create(db *gorm.DB) (*gorm.DB, error) {

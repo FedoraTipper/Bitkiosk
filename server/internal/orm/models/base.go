@@ -22,8 +22,8 @@ type BaseModelSoftDelete struct {
 func CreateObject(objToCreate interface{}, objToReturn interface{}, db *gorm.DB) (dbToReturn *gorm.DB, err error) {
 	dbToReturn = db.Create(objToCreate).First(objToReturn)
 
-	if db.Error != nil {
-		err = db.Error
+	if dbToReturn.Error != nil {
+		err = dbToReturn.Error
 	}
 
 	return dbToReturn, err

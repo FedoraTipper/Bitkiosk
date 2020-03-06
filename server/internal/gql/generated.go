@@ -394,7 +394,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
     price: Float!
     stock: Int!
     startDate: String!
-    endDate: String!
+    endDate: String
     createdByAdmin: User
     createdAt: String
     updatedAt: String
@@ -407,8 +407,7 @@ input NewProduct {
     price: Float!
     stock: Int!
     startDate: String!
-    endDate: String!
-    createdByAdmin: Int!
+    endDate: String
 }`},
 	&ast.Source{Name: "internal/gql/schemas/queries.graphql", Input: `type Query {
     # users
@@ -943,15 +942,12 @@ func (ec *executionContext) _Product_endDate(ctx context.Context, field graphql.
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Product_createdByAdmin(ctx context.Context, field graphql.CollectedField, obj *models.Product) (ret graphql.Marshaler) {
@@ -2756,13 +2752,7 @@ func (ec *executionContext) unmarshalInputNewProduct(ctx context.Context, obj in
 			}
 		case "endDate":
 			var err error
-			it.EndDate, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdByAdmin":
-			var err error
-			it.CreatedByAdmin, err = ec.unmarshalNInt2int(ctx, v)
+			it.EndDate, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2936,9 +2926,6 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "endDate":
 			out.Values[i] = ec._Product_endDate(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		case "createdByAdmin":
 			out.Values[i] = ec._Product_createdByAdmin(ctx, field, obj)
 		case "createdAt":

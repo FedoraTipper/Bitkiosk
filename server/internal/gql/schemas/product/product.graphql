@@ -5,7 +5,7 @@ type Product {
     price: Float!
     stock: Int!
     startDate: String!
-    endDate: String!
+    endDate: String
     createdByAdmin: User
     createdAt: String
     updatedAt: String
@@ -18,6 +18,5 @@ input NewProduct {
     price: Float!
     stock: Int!
     startDate: String!
-    endDate: String!
-    createdByAdmin: Int!
+    endDate: String
 }

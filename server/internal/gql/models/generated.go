@@ -3,14 +3,13 @@
 package models
 
 type NewProduct struct {
-	Sku            string  `json:"SKU"`
-	Name           string  `json:"name"`
-	Description    string  `json:"description"`
-	Price          float64 `json:"price"`
-	Stock          int     `json:"stock"`
-	StartDate      string  `json:"startDate"`
-	EndDate        string  `json:"endDate"`
-	CreatedByAdmin int     `json:"createdByAdmin"`
+	Sku         string  `json:"SKU"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float64 `json:"price"`
+	Stock       int     `json:"stock"`
+	StartDate   string  `json:"startDate"`
+	EndDate     *string `json:"endDate"`
 }
 
 type NewUser struct {
@@ -28,7 +27,7 @@ type Product struct {
 	Price          float64 `json:"price"`
 	Stock          int     `json:"stock"`
 	StartDate      string  `json:"startDate"`
-	EndDate        string  `json:"endDate"`
+	EndDate        *string `json:"endDate"`
 	CreatedByAdmin *User   `json:"createdByAdmin"`
 	CreatedAt      *string `json:"createdAt"`
 	UpdatedAt      *string `json:"updatedAt"`
