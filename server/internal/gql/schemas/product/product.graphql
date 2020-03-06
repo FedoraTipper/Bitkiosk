@@ -11,7 +11,7 @@ type Product {
     updatedAt: String
 }
 
-input newProduct {
+input NewProduct {
     SKU: String!
     name: String!
     description: String!

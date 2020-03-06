@@ -17,6 +17,7 @@
     "buefy": "^0.8.10",
     "core-js": "^3.4.4",
     "email-validator": "^2.0.4",
+    "graphql-request": "^1.8.2",
     "js-cookie": "^2.2.1",
     "sprintf-js": "^1.1.2",
     "vue": "^2.6.10",

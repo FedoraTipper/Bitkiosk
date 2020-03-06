@@ -32,10 +32,10 @@ func DefaultPasswordValidator(password string) PasswordValidator {
 	return PasswordValidator{
 		password:             password,
 		PasswordRequirements: []PasswordRequirement{
-			{`.`, 8, "a length of %d characters or more"},
-			{`[^\w\d]`, 1,"%d special character [!@#^ etc]"},
-			{`[A-Z]`, 1, "%d uppercase [A-Z]"},
-			{`\d`, 1, "%d digit [0-9]"},
+			{`.`, minLength, "a length of %d characters or more"},
+			{`[^\w\d]`, minSpecialCharacters,"%d special character [!@#^ etc]"},
+			{`[A-Z]`, minUppercase, "%d uppercase [A-Z]"},
+			{`\d`, minDigits, "%d digit [0-9]"},
 		},
 	}
 }

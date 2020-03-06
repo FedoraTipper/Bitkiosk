@@ -4,8 +4,8 @@ type Query {
     userProfile(email: String): UserProfile!
 
     #products
-    loadActiveProducts(): [Product]!
-    loadProduct(SKU: String!): Product!
+    #loadActiveProducts(): [Product]!
+    #loadProduct(SKU: String!): Product!
 
     # authentication
     #authenticate(authDetails: loginDetails!): AuthResponse!

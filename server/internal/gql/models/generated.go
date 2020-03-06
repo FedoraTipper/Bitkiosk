@@ -2,6 +2,17 @@
 
 package models
 
+type NewProduct struct {
+	Sku            string  `json:"SKU"`
+	Name           string  `json:"name"`
+	Description    string  `json:"description"`
+	Price          float64 `json:"price"`
+	Stock          int     `json:"stock"`
+	StartDate      string  `json:"startDate"`
+	EndDate        string  `json:"endDate"`
+	CreatedByAdmin int     `json:"createdByAdmin"`
+}
+
 type NewUser struct {
 	Email        string  `json:"email"`
 	Token        string  `json:"token"`
@@ -11,13 +22,16 @@ type NewUser struct {
 }
 
 type Product struct {
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Stock       int     `json:"stock"`
-	CreatedBy   *User   `json:"createdBy"`
-	CreatedAt   *string `json:"createdAt"`
-	UpdatedAt   *string `json:"updatedAt"`
+	Sku            string  `json:"SKU"`
+	Name           string  `json:"name"`
+	Description    string  `json:"description"`
+	Price          float64 `json:"price"`
+	Stock          int     `json:"stock"`
+	StartDate      string  `json:"startDate"`
+	EndDate        string  `json:"endDate"`
+	CreatedByAdmin *User   `json:"createdByAdmin"`
+	CreatedAt      *string `json:"createdAt"`
+	UpdatedAt      *string `json:"updatedAt"`
 }
 
 type UpdatedProfile struct {

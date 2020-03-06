@@ -1,6 +1,6 @@
 import {
   LoginDetails,
-  authPayload, RegisterDetails
+  authPayload, IRegisterDetails
 } from "@/models/authentication/authdetails";
 import Axios from "axios";
 import NotificationUtil from "@/utils/notification/notificationutil";
@@ -25,14 +25,6 @@ export default class AuthHandler {
       });
     });
   }
-
-  async Register(registerDetails: RegisterDetails): Promise<boolean> {
-    return new Promise<boolean>(async resolve => {
-      await new Usergql().registerUser().then((response: UserProfile) => {
-      });
-      resolve(true);
-    });
- }
 
   // @ts-ignore
   async postLogin(details: LoginDetails): Promise<authPayload> {

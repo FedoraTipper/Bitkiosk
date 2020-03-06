@@ -44,18 +44,22 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
+		CreateProduct     func(childComplexity int, input *models.NewProduct) int
 		CreateUser        func(childComplexity int, input models.NewUser) int
 		UpdateUserProfile func(childComplexity int, input models.UpdatedProfile) int
 	}
 
 	Product struct {
-		CreatedAt   func(childComplexity int) int
-		CreatedBy   func(childComplexity int) int
-		Description func(childComplexity int) int
-		Name        func(childComplexity int) int
-		Price       func(childComplexity int) int
-		Stock       func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
+		CreatedAt      func(childComplexity int) int
+		CreatedByAdmin func(childComplexity int) int
+		Description    func(childComplexity int) int
+		EndDate        func(childComplexity int) int
+		Name           func(childComplexity int) int
+		Price          func(childComplexity int) int
+		Sku            func(childComplexity int) int
+		StartDate      func(childComplexity int) int
+		Stock          func(childComplexity int) int
+		UpdatedAt      func(childComplexity int) int
 	}
 
 	Query struct {
@@ -83,6 +87,7 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input models.NewUser) (string, error)
 	UpdateUserProfile(ctx context.Context, input models.UpdatedProfile) (*models.UserProfile, error)
+	CreateProduct(ctx context.Context, input *models.NewProduct) (*models.Product, error)
 }
 type QueryResolver interface {
 	Users(ctx context.Context) ([]*models.User, error)
@@ -103,6 +108,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "Mutation.createProduct":
+		if e.complexity.Mutation.CreateProduct == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createProduct_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateProduct(childComplexity, args["input"].(*models.NewProduct)), true
 
 	case "Mutation.createUser":
 		if e.complexity.Mutation.CreateUser == nil {
@@ -135,12 +152,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Product.CreatedAt(childComplexity), true
 
-	case "Product.createdBy":
-		if e.complexity.Product.CreatedBy == nil {
+	case "Product.createdByAdmin":
+		if e.complexity.Product.CreatedByAdmin == nil {
 			break
 		}
 
-		return e.complexity.Product.CreatedBy(childComplexity), true
+		return e.complexity.Product.CreatedByAdmin(childComplexity), true
 
 	case "Product.description":
 		if e.complexity.Product.Description == nil {
@@ -148,6 +165,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.Description(childComplexity), true
+
+	case "Product.endDate":
+		if e.complexity.Product.EndDate == nil {
+			break
+		}
+
+		return e.complexity.Product.EndDate(childComplexity), true
 
 	case "Product.name":
 		if e.complexity.Product.Name == nil {
@@ -162,6 +186,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Product.Price(childComplexity), true
+
+	case "Product.SKU":
+		if e.complexity.Product.Sku == nil {
+			break
+		}
+
+		return e.complexity.Product.Sku(childComplexity), true
+
+	case "Product.startDate":
+		if e.complexity.Product.StartDate == nil {
+			break
+		}
+
+		return e.complexity.Product.StartDate(childComplexity), true
 
 	case "Product.stock":
 		if e.complexity.Product.Stock == nil {
@@ -343,20 +381,43 @@ var parsedSchema = gqlparser.MustLoadSchema(
     # Users
     createUser(input: NewUser!): String!
     updateUserProfile(input: UpdatedProfile!): UserProfile!
+
+    #Products
+    createProduct(input: NewProduct): Product!
+    #updateStockCount(input: ProductStock): Product!
+    #updateProduct(input: UpdatedProduct!): Product!
 }`},
 	&ast.Source{Name: "internal/gql/schemas/product/product.graphql", Input: `type Product {
+    SKU: String!
     name: String!
     description: String!
     price: Float!
     stock: Int!
-    createdBy: User
+    startDate: String!
+    endDate: String!
+    createdByAdmin: User
     createdAt: String
     updatedAt: String
+}
+
+input NewProduct {
+    SKU: String!
+    name: String!
+    description: String!
+    price: Float!
+    stock: Int!
+    startDate: String!
+    endDate: String!
+    createdByAdmin: Int!
 }`},
 	&ast.Source{Name: "internal/gql/schemas/queries.graphql", Input: `type Query {
     # users
     users: [User]!
     userProfile(email: String): UserProfile!
+
+    #products
+    #loadActiveProducts(): [Product]!
+    #loadProduct(SKU: String!): Product!
 
     # authentication
     #authenticate(authDetails: loginDetails!): AuthResponse!
@@ -395,6 +456,20 @@ input UpdatedProfile {
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_createProduct_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *models.NewProduct
+	if tmp, ok := rawArgs["input"]; ok {
+		arg0, err = ec.unmarshalONewProduct2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐNewProduct(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -576,6 +651,87 @@ func (ec *executionContext) _Mutation_updateUserProfile(ctx context.Context, fie
 	return ec.marshalNUserProfile2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUserProfile(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_createProduct(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createProduct_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateProduct(rctx, args["input"].(*models.NewProduct))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*models.Product)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNProduct2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐProduct(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Product_SKU(ctx context.Context, field graphql.CollectedField, obj *models.Product) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Product",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Sku, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Product_name(ctx context.Context, field graphql.CollectedField, obj *models.Product) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -724,7 +880,7 @@ func (ec *executionContext) _Product_stock(ctx context.Context, field graphql.Co
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Product_createdBy(ctx context.Context, field graphql.CollectedField, obj *models.Product) (ret graphql.Marshaler) {
+func (ec *executionContext) _Product_startDate(ctx context.Context, field graphql.CollectedField, obj *models.Product) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -743,7 +899,81 @@ func (ec *executionContext) _Product_createdBy(ctx context.Context, field graphq
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedBy, nil
+		return obj.StartDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Product_endDate(ctx context.Context, field graphql.CollectedField, obj *models.Product) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Product",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EndDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Product_createdByAdmin(ctx context.Context, field graphql.CollectedField, obj *models.Product) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Product",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedByAdmin, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2482,6 +2712,66 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputNewProduct(ctx context.Context, obj interface{}) (models.NewProduct, error) {
+	var it models.NewProduct
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "SKU":
+			var err error
+			it.Sku, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "description":
+			var err error
+			it.Description, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "price":
+			var err error
+			it.Price, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "stock":
+			var err error
+			it.Stock, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "startDate":
+			var err error
+			it.StartDate, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "endDate":
+			var err error
+			it.EndDate, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "createdByAdmin":
+			var err error
+			it.CreatedByAdmin, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj interface{}) (models.NewUser, error) {
 	var it models.NewUser
 	var asMap = obj.(map[string]interface{})
@@ -2587,6 +2877,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createProduct":
+			out.Values[i] = ec._Mutation_createProduct(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2609,6 +2904,11 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Product")
+		case "SKU":
+			out.Values[i] = ec._Product_SKU(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "name":
 			out.Values[i] = ec._Product_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2629,8 +2929,18 @@ func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "createdBy":
-			out.Values[i] = ec._Product_createdBy(ctx, field, obj)
+		case "startDate":
+			out.Values[i] = ec._Product_startDate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "endDate":
+			out.Values[i] = ec._Product_endDate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createdByAdmin":
+			out.Values[i] = ec._Product_createdByAdmin(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._Product_createdAt(ctx, field, obj)
 		case "updatedAt":
@@ -3068,6 +3378,20 @@ func (ec *executionContext) unmarshalNNewUser2githubᚗcomᚋfedoratipperᚋbitk
 	return ec.unmarshalInputNewUser(ctx, v)
 }
 
+func (ec *executionContext) marshalNProduct2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐProduct(ctx context.Context, sel ast.SelectionSet, v models.Product) graphql.Marshaler {
+	return ec._Product(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNProduct2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐProduct(ctx context.Context, sel ast.SelectionSet, v *models.Product) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Product(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	return graphql.UnmarshalString(v)
 }
@@ -3384,6 +3708,18 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return ec.marshalOBoolean2bool(ctx, sel, *v)
+}
+
+func (ec *executionContext) unmarshalONewProduct2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐNewProduct(ctx context.Context, v interface{}) (models.NewProduct, error) {
+	return ec.unmarshalInputNewProduct(ctx, v)
+}
+
+func (ec *executionContext) unmarshalONewProduct2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐNewProduct(ctx context.Context, v interface{}) (*models.NewProduct, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalONewProduct2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐNewProduct(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

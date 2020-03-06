@@ -9,10 +9,15 @@ export interface authPayload {
   tokenToStore: string;
 }
 
-export interface RegisterDetails {
+export interface IRegisterDetails {
   firstName: string;
   lastName: string;
   email: string;
   token: string;
   authMethodId: number;
+}
+
+export interface IRegisterResponse {
+  success: boolean;
+  message: string;
 }

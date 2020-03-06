@@ -5,6 +5,6 @@ type Mutation {
 
     #Products
     createProduct(input: NewProduct): Product!
-    updateStockCount(input: ProductStock): Product!
-    updateProduct(input: UpdatedProduct!): Product!
+    #updateStockCount(input: ProductStock): Product!
+    #updateProduct(input: UpdatedProduct!): Product!
 }
