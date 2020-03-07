@@ -13,7 +13,7 @@ export class AuthMixin extends Vue {
   }
 
   authOnLoad() {
-    if (!UserModule.userProfile.loggedIn) {
+    if (!UserModule.user.loggedIn) {
       UserModule.setUserProfile(false);
     }
   }

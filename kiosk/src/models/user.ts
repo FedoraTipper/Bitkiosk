@@ -2,22 +2,30 @@ import { IUser } from "@/models/user.d.ts";
 import { UserProfile } from "@/models/userprofile";
 
 export default class User implements IUser {
-  private _UserProfile: UserProfile;
-  private _email: string;
-  private _role: number;
+  private _userProfile!: UserProfile;
+  private _email!: string;
+  private _role!: number;
+  private _loggedIn: boolean = false;
 
-  constructor(UserProfile: UserProfile, email: string, role: number) {
-    this._UserProfile = UserProfile;
-    this._email = email;
-    this._role = role;
+  constructor() {}
+
+  setUserFromResponseObject(obj: IUser) {
+    this._role = obj.role;
+    this._email = obj.email;
+
+    let userProfile: UserProfile = new UserProfile();
+    userProfile.setUserProfileFromResponse(obj.userProfile);
+    this._userProfile = userProfile;
+
+    this._loggedIn = true;
   }
 
-  get UserProfile(): UserProfile {
-    return this._UserProfile;
+  get userProfile(): UserProfile {
+    return this._userProfile;
   }
 
-  set UserProfile(value: UserProfile) {
-    this._UserProfile = value;
+  set userProfile(value: UserProfile) {
+    this._userProfile = value;
   }
 
   get email(): string {
@@ -34,5 +42,13 @@ export default class User implements IUser {
 
   set role(value: number) {
     this._role = value;
+  }
+
+  get loggedIn(): boolean {
+    return this._loggedIn;
+  }
+
+  set loggedIn(value: boolean) {
+    this._loggedIn = value;
   }
 }

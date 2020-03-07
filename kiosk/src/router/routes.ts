@@ -2,6 +2,7 @@ import Home from "../views/Home.vue";
 import Login from "../views/Login.vue";
 import Signup from "../views/Signup.vue";
 import Logout from "../views/Logout.vue";
+import ProductSearch from "../views/ProductSearch.vue";
 import ProductView from "../views/ProductView.vue";
 
 export default {
@@ -25,8 +26,13 @@ export default {
     name: "logout",
     component: Logout
   },
+  productsearch: {
+    path: "/search",
+    name: "Product Search",
+    component: ProductSearch
+  },
   productview: {
-    path: "/view",
+    path: "/product/:sku",
     name: "Product View",
     component: ProductView
   }

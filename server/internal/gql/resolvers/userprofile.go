@@ -33,10 +33,10 @@ func (r *mutationResolver) UpdateUserProfile(ctx context.Context, input gqlModel
 	return nil, errors.New("not authenticated for query")
 }
 
-func (r *queryResolver) UserProfile(ctx context.Context, email *string) (*gqlModels.UserProfile, error) {
+func (r *queryResolver) UserProfile(ctx context.Context, email *string) (*gqlModels.User, error) {
 	authLevel, err := authhandler.GetAuthLevelFromSession(ctx)
 
-	if authLevel == nil || authLevel.AuthLevel == session.NoAuth {
+	if authLevel == nil || authLevel.AuthLevel == session.NoAuth || err != nil {
 		return nil, errors.New("not authenticated for query")
 	}
 
@@ -44,43 +44,41 @@ func (r *queryResolver) UserProfile(ctx context.Context, email *string) (*gqlMod
 
 	// TODO MOVE THIS SOMEWHERE ELSE
 	if email != nil && *email != ""{
-		userToFind = actions.LoadUserWithEmail(*email, r.ORM.DB.New())
+		if authLevel.AuthLevel == session.AdminAuth {
+			userToFind = actions.LoadUserWithEmail(*email, r.ORM.DB.New())
+		} else {
+			return nil, errors.New("Unable to access user information")
+		}
 	} else {
 		userToFind = actions.LoadUserWithId(uint(authLevel.UID), r.ORM.DB.New())
 	}
 
 	if userToFind == nil {
-		return nil, errors.New("Unable to find user with email " + *email)
-	}
-
-	if authLevel.AuthLevel == session.UserAuth && int(userToFind.ID) == authLevel.UID {
-		return getUserProfile(r, userToFind)
-	} else if authLevel.AuthLevel == session.AdminAuth	{
-		return getUserProfile(r, userToFind)
+		return nil, errors.New("Unable to find user")
 	} else {
-		if err != nil {
-			logger.Error("Unable to resolve auth level with Users resolver. \n" + err.Error())
-		}
+		gqlReturn, err := tf.DBUserToGQLUser(userToFind)
+
+		return gqlReturn, err
 	}
 
 	return nil, errors.New("not authenticated for query")
 }
 
-func getUserProfile(r *queryResolver, user *dbm.User) (*gqlModels.UserProfile, error) {
-	var userProfile dbm.UserProfile
-	db := r.ORM.DB.New()
-
-	db.Where("user_id = ?", &user.ID).First(&userProfile)
-
-	gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(&userProfile, user)
-
-	if err != nil {
-		return &gqlModels.UserProfile{}, err
-	}
-
-	return gqlUserProfile, nil
-
-}
+//func getUserProfile(r *queryResolver, user *dbm.User) (*gqlModels.User, error) {
+//	var userProfile dbm.User
+//	db := r.ORM.DB.New()
+//
+//	db.Where("user_id = ?", &user.ID).First(&userProfile)
+//
+//	gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(&userProfile, user)
+//
+//	if err != nil {
+//		return &gqlModels.User{}, err
+//	}
+//
+//	return gqlUserProfile, nil
+//
+//}
 
 func updateUserProfile(r *mutationResolver, input gqlModels.UpdatedProfile) (*gqlModels.UserProfile, error) {
 

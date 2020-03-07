@@ -1,33 +1,57 @@
 <template>
-  <div>
-    <div v-for="product in products" v-bind:key="product.SKU">
-      <Product :product="product" :card-form="true"></Product>
-    </div>
+  <div v-if="product != undefined">
+    <ProductComponent :product="product" :card-form="false" />
   </div>
 </template>
 
 <script>
-import Product from "@/components/Product";
+import Product from "@/models/product";
+import ProductComponent from "@/components/Product";
 import { ProductsModule } from "@/store/modules/products";
-import Component, {mixins} from "vue-class-component";
+import Component, { mixins } from "vue-class-component";
 import { AuthMixin } from "@/mixins/authmixin";
+import {Watch} from "vue-property-decorator";
 
 @Component({
   components: {
-    Product
+    ProductComponent
   }
 })
 export default class ProductView extends mixins(AuthMixin) {
+  product = new Product();
+
   constructor() {
     super();
   }
 
-  mounted() {
-    ProductsModule.loadActiveProducts();
+  created() {
+    console.log("asdasd")
+    if (ProductsModule.products.length == 0) {
+      console.log("asdasdasdasd");
+      ProductsModule.loadActiveProducts();
+    }else {
+      let SKUToFind = this.$route.params["sku"];
+      ProductsModule.products.forEach(p => {
+        if (p.SKU === SKUToFind) {
+          this.product = p;
+        }
+      });
+    }
   }
 
   get products() {
     return ProductsModule.products;
+  }
+
+  @Watch("products")
+  loadProductFromList(val) {
+    let SKUToFind = this.$route.params["sku"];
+    ProductsModule.products.forEach(p => {
+      if (p.SKU === SKUToFind) {
+        console.log("prodcut found");
+        this.product = p;
+      }
+    });
   }
 }
 </script>

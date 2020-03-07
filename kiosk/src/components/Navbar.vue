@@ -43,17 +43,17 @@ import {Component, Vue} from "vue-property-decorator";
 import { UserModule } from "@/store/modules/user";
 
 @Component
-export default class NavBar extends Vue{
+export default class NavBar extends Vue {
   constructor() {
     super();
   }
 
   get userFirstName() {
-    return UserModule.userProfile.firstName;
+    return UserModule.user.userProfile.firstName;
   }
 
   get userLoggedIn() {
-    return UserModule.userProfile.loggedIn;
+    return UserModule.user.loggedIn;
   }
 }
 </script>

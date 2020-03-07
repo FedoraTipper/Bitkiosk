@@ -1,7 +1,7 @@
 type Query {
     # users
     users(limit: Int, offset: Int): [User]!
-    userProfile(email: String): UserProfile!
+    userProfile(email: String): User!
 
     #products
     loadActiveProducts(limit: Int, offset: Int): [Product]!

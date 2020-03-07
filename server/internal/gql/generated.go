@@ -92,7 +92,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Users(ctx context.Context, limit *int, offset *int) ([]*models.User, error)
-	UserProfile(ctx context.Context, email *string) (*models.UserProfile, error)
+	UserProfile(ctx context.Context, email *string) (*models.User, error)
 	LoadActiveProducts(ctx context.Context, limit *int, offset *int) ([]*models.Product, error)
 }
 
@@ -431,7 +431,7 @@ input NewProduct {
 	&ast.Source{Name: "internal/gql/schemas/queries.graphql", Input: `type Query {
     # users
     users(limit: Int, offset: Int): [User]!
-    userProfile(email: String): UserProfile!
+    userProfile(email: String): User!
 
     #products
     loadActiveProducts(limit: Int, offset: Int): [Product]!
@@ -1197,10 +1197,10 @@ func (ec *executionContext) _Query_userProfile(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*models.UserProfile)
+	res := resTmp.(*models.User)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNUserProfile2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUserProfile(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_loadActiveProducts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -3562,6 +3562,10 @@ func (ec *executionContext) unmarshalNUpdatedProfile2githubᚗcomᚋfedoratipper
 	return ec.unmarshalInputUpdatedProfile(ctx, v)
 }
 
+func (ec *executionContext) marshalNUser2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v models.User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v []*models.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -3597,6 +3601,16 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋfedoratipperᚋbit
 	}
 	wg.Wait()
 	return ret
+}
+
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUser(ctx context.Context, sel ast.SelectionSet, v *models.User) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUserProfile2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐUserProfile(ctx context.Context, sel ast.SelectionSet, v models.UserProfile) graphql.Marshaler {

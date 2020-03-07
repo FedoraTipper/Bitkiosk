@@ -8,13 +8,14 @@ import {
   IRegisterResponse
 } from "@/models/authentication/authdetails";
 import GQLClientFactory from "@/utils/gqlclient/gqlfactory";
+import User from "@/models/user";
 
 export default class UserGQL {
   constructor() {}
 
-  async fetchUserProfile(email: string | null): Promise<UserProfile> {
-    return new Promise<UserProfile>(async resolve => {
-      let userProfile: UserProfile = new UserProfile();
+  async fetchUserProfile(email: string | null): Promise<User> {
+    return new Promise<User>(async resolve => {
+      let user: User = new User();
 
       let GQLClient = new gqlfactory().newGQLClient();
 
@@ -25,17 +26,16 @@ export default class UserGQL {
       await GQLClient.request(UserQueries.getUserProfile, inputData)
         .then(response => {
           if (response) {
-            // userProfile = JSON.parse(response['userProfile']);
-            response = response["userProfile"];
-            userProfile = new UserProfile();
-            userProfile.setUserProfileFromResponse(response);
+            console.log(response);
+            user = new User();
+            user.setUserFromResponseObject(response["userProfile"]);
           }
         })
         .catch(error => {
           // TODO ADD ENV LOGGER
         });
 
-      resolve(userProfile);
+      resolve(user);
     });
   }
 

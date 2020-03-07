@@ -2,6 +2,7 @@ import ProductQueries from "./productqueries";
 import Product from "@/models/product";
 import IProduct from "@/models/product.d.ts";
 import gqlfactory from "@/utils/gqlclient/gqlfactory";
+import User from "@/models/user";
 
 export default class ProductsGQL {
   async fetchActiveProducts(): Promise<Array<Product>> {
@@ -16,6 +17,8 @@ export default class ProductsGQL {
             for (let productResponse of response["loadActiveProducts"]) {
               let product: Product = new Product();
               product.setProductFromResponseObject(productResponse);
+
+              let user: User = new User();
               activeProducts.push(product);
             }
           }

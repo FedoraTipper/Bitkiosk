@@ -6,12 +6,12 @@ import {
   Mutation, Action
 } from "vuex-module-decorators";
 import store from "@/store";
-import { UserProfile } from "@/models/userprofile.ts";
+import User from "@/models/user";
 import UserAPI from "@/modules/graphql/user/usergql";
 import NotificationUtil from "@/utils/notification/notificationutil";
 
 export interface IUserState {
-  userProfile: UserProfile;
+  user: User;
 }
 
 @Module({
@@ -20,16 +20,16 @@ export interface IUserState {
   name: "User",
   store
 })
-class User extends VuexModule implements IUserState {
-  userProfile: UserProfile = new UserProfile();
+class UserStore extends VuexModule implements IUserState {
+  user: User = new User();
 
   @Mutation
   async setUserProfile(displayError: boolean) {
     new UserAPI().fetchUserProfile("").then(result => {
-      this.userProfile = result;
+      this.user = result;
 
       if (displayError) {
-        if (this.userProfile.loggedIn !== true) {
+        if (this.user.loggedIn !== true) {
           new NotificationUtil().displayError(
             "Unable to retrieve your user profile. :("
           );
@@ -40,8 +40,8 @@ class User extends VuexModule implements IUserState {
 
   @Mutation
   async destroyUserSession() {
-    this.userProfile = new UserProfile();
+    this.user = new User();
   }
 }
 
-export const UserModule = getModule(User);
+export const UserModule = getModule(UserStore);
