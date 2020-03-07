@@ -33,6 +33,11 @@ const routes = [
     path: routeDefinitions.logout.path,
     name: routeDefinitions.logout.name,
     component: routeDefinitions.logout.component
+  },
+  {
+    path: routeDefinitions.productview.path,
+    name: routeDefinitions.productview.name,
+    component: routeDefinitions.productview.component
   }
 ];
 

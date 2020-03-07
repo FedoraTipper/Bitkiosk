@@ -6,10 +6,5 @@ export default {
           lastName
         }
       }
-   `,
-  signUpNewUser: `
-    mutation signUpNewUser($input: NewUser!) {
-        createUser(input: $input)
-    }
    `
 };

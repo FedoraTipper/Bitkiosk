@@ -1,6 +1,7 @@
 import { UserProfile } from "../../../models/userprofile";
 import gqlfactory from "@/utils/gqlclient/gqlfactory";
-import UserQueries from "@/modules/graphql/queries/userqueries";
+import UserQueries from "@/modules/graphql/user/userqueries";
+import UserMutations from "@/modules/graphql/user/usermutations";
 import NotificationUtil from "@/utils/notification/notificationutil";
 import {
   IRegisterDetails,
@@ -43,7 +44,7 @@ export default class UserGQL {
   ): Promise<IRegisterResponse> {
     return new Promise<IRegisterResponse>(async resolve => {
       let GQLClient = new GQLClientFactory().newGQLClient();
-      await GQLClient.request(UserQueries.signUpNewUser, {
+      await GQLClient.request(UserMutations.signUpNewUser, {
         input: registerDetails
       })
         .then(response => {

@@ -36,5 +36,5 @@ export default class Login extends mixins(AuthMixin) {
   constructor() {
     super();
   }
-};
+}
 </script>

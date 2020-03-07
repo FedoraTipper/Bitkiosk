@@ -1,10 +1,10 @@
 type Query {
     # users
-    users: [User]!
+    users(limit: Int, offset: Int): [User]!
     userProfile(email: String): UserProfile!
 
     #products
-    #loadActiveProducts(): [Product]!
+    loadActiveProducts(limit: Int, offset: Int): [Product]!
     #loadProduct(SKU: String!): Product!
 
     # authentication

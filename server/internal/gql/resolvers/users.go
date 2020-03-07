@@ -31,7 +31,7 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (bool, err
 }
 
 // Users lists records
-func (r *queryResolver) Users(ctx context.Context) ([]*models.User, error) {
+func (r *queryResolver) Users(ctx context.Context, limit *int, offset *int) ([]*models.User, error) {
 	authLevel, err := authhandler.GetAuthLevelFromSession(ctx)
 
 	if authLevel != nil && authLevel.AuthLevel == session.AdminAuth {
@@ -137,7 +137,7 @@ func userList(r *queryResolver) ([]*models.User, error) {
 	db := r.ORM.DB.New()
 
 	var dbRecords = []dbm.User{}
-	db.Find(&dbRecords)
+	db.Preload("UserProfile").Find(&dbRecords)
 
 	if dbRecords == nil {
 		return nil, nil

@@ -9,7 +9,26 @@ import (
 	tf "github.com/fedoratipper/bitkiosk/server/internal/gql/resolvers/transformations"
 	"github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/actions"
 )
+
+func (r *queryResolver) LoadActiveProducts(ctx context.Context, limit *int, offset *int) ([]*models.Product, error) {
+	var gqlReturn []*models.Product
+
+	db := r.ORM.DB.New().Begin()
+
+	products := actions.LoadActiveProducts(db)
+
+	for _,product := range products {
+		if gqlProduct, err := tf.DBProductToGQLProduct(&product, db); err == nil {
+			gqlReturn = append(gqlReturn, gqlProduct)
+		} else {
+			return nil, err
+		}
+	}
+
+	return gqlReturn, nil
+}
 
 func (r *mutationResolver) CreateProduct(ctx context.Context, input *models.NewProduct) (*models.Product, error) {
 	authLevel, err := authhandler.GetAuthLevelFromSession(ctx)

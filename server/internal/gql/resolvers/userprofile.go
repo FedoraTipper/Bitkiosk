@@ -44,9 +44,9 @@ func (r *queryResolver) UserProfile(ctx context.Context, email *string) (*gqlMod
 
 	// TODO MOVE THIS SOMEWHERE ELSE
 	if email != nil && *email != ""{
-		userToFind = actions.GetUserWithEmail(*email, r.ORM.DB.New())
+		userToFind = actions.LoadUserWithEmail(*email, r.ORM.DB.New())
 	} else {
-		userToFind = actions.GetUserWithId(uint(authLevel.UID), r.ORM.DB.New())
+		userToFind = actions.LoadUserWithId(uint(authLevel.UID), r.ORM.DB.New())
 	}
 
 	if userToFind == nil {

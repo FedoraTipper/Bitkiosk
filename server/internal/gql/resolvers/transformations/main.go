@@ -18,8 +18,8 @@ func DBUserToGQLUser(i *dbm.User) (o *gql.User, err error) {
 		UpdatedAt: date.FormatToSqlDate(i.UpdatedAt),
 	}
 
-	if i.Profile != nil {
-		o.UserProfile, err = DBUserProfileToGQLUserProfile(i.Profile, i)
+	if i.UserProfile != nil {
+		o.UserProfile, err = DBUserProfileToGQLUserProfile(i.UserProfile, i)
 	}
 
 	return o, err
@@ -145,7 +145,7 @@ func DBProductToGQLProduct(p *dbm.Product, db *gorm.DB) (*gql.Product, error) {
 		UpdatedAt:      date.FormatToSqlDate(p.UpdatedAt),
 	}
 
-	user := actions.GetUserWithId(p.AdminId, db)
+	user := actions.LoadUserWithId(p.AdminId, db)
 
 	if user != nil {
 		adminUser, err := DBUserToGQLUser(user)
