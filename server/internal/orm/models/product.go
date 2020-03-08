@@ -3,8 +3,10 @@ package models
 import (
 	"errors"
 	"github.com/fedoratipper/bitkiosk/server/internal/authentication/session"
+	"github.com/fedoratipper/bitkiosk/server/internal/logger"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/jinzhu/gorm"
+	"regexp"
 	"time"
 )
 
@@ -39,6 +41,7 @@ func (tp *Product) Validate(db *gorm.DB, toInsert bool) error {
 		validation.Field(&tp.Stock, validation.Min(0).Error("Stock count needs to be greater than 0")),
 		validation.Field(&tp.Price, validation.Min( float64(0)).Error("Price needs to be greater than 0")),
 		validation.Field(&tp.Sku, validation.By(validateSKUUniqueness(db, toInsert, tp.ID))),
+		validation.Field(&tp.Sku, validation.By(validateSKUString())),
 		)
 }
 
@@ -69,6 +72,28 @@ func validateAdminExists(db *gorm.DB) validation.RuleFunc {
 	}
 }
 
+func validateSKUString() validation.RuleFunc {
+	return func(value interface{}) error {
+		sku, _ := value.(string)
+
+		var expression string = `[^\w\d\s-]`
+
+		regex, err := regexp.Compile(expression)
+
+		if err != nil {
+			logger.Error("Unable to parse regex: \n " + expression)
+			return errors.New("Unable to perform sku validation")
+		}
+
+		if len(regex.FindAllString(sku, -1)) > 0 {
+			return errors.New("SKU identifiers may not contain special characters. All spaces will be replaced with hyphens")
+		}
+
+		return nil
+	}
+}
+
+
 func validateSKUUniqueness(db *gorm.DB, toInsert bool, productId uint) validation.RuleFunc {
 	return func(value interface{}) error {
 		sku, _ := value.(string)
@@ -78,7 +103,7 @@ func validateSKUUniqueness(db *gorm.DB, toInsert bool, productId uint) validatio
 			db.Where("sku = ? and id != ?", sku, productId).First(&lookupObj)
 
 			if lookupObj.ID != 0 {
-				return errors.New("SKU name already exists. Please enter a unique SKU for this product")
+				return errors.New("SKU identifiers already exists. Please enter a unique SKU for this product")
 			}
 		}
 

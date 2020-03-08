@@ -12,6 +12,7 @@ import (
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils/passwordvalidator"
+	stringUtil "github.com/fedoratipper/bitkiosk/server/pkg/utils/string"
 	"strings"
 )
 
@@ -82,8 +83,8 @@ func userCreate(r *mutationResolver, input models.NewUser) (string, error) {
 		if err == nil {
 			userProfileDbo := &dbm.UserProfile{
 				UserID:      userDbo.ID,
-				FirstName:   input.FirstName,
-				LastName:    input.LastName,
+				FirstName:   stringUtil.FormatNameString(input.FirstName),
+				LastName:    stringUtil.FormatNameString(input.LastName),
 			}
 
 			db, err = userProfileDbo.Create(db)

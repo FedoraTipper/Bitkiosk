@@ -6,7 +6,9 @@ import (
 	"github.com/fedoratipper/bitkiosk/server/internal/orm/actions"
 	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils/date"
+	stringUtil "github.com/fedoratipper/bitkiosk/server/pkg/utils/string"
 	"github.com/jinzhu/gorm"
+	"strings"
 )
 
 // DBUserToGQLUser transforms [user] db input to gql type
@@ -103,11 +105,11 @@ func GQLUpdateUserProfileToDBUserProfile(i *gql.UpdatedProfile, db *gorm.DB) (*d
 
 func GQLProductToDBProduct(i *gql.NewProduct, adminId uint) (*dbm.Product, error) {
 	product := &dbm.Product{
-		Name: i.Name,
-		Sku: i.Sku,
+		Name: *stringUtil.FormatNameString(&i.Name),
+		Sku: *stringUtil.FormatWhiteSpace(&i.Sku),
 		Stock: i.Stock,
 		AdminId: adminId,
-		Description: i.Description,
+		Description: strings.TrimSpace(i.Description),
 		Price: i.Price,
 	}
 
