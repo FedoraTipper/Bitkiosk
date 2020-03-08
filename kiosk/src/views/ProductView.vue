@@ -1,12 +1,12 @@
 <template>
   <div v-if="product != undefined">
-    <ProductComponent :product="product" :card-form="false" />
+    <ProductPage :product="product" />
   </div>
 </template>
 
 <script>
 import Product from "@/models/product";
-import ProductComponent from "@/components/Product";
+import ProductPage from "@/components/ProductPage";
 import { ProductsModule } from "@/store/modules/products";
 import Component, { mixins } from "vue-class-component";
 import { AuthMixin } from "@/mixins/authmixin";
@@ -14,7 +14,7 @@ import {Watch} from "vue-property-decorator";
 
 @Component({
   components: {
-    ProductComponent
+    ProductPage
   }
 })
 export default class ProductView extends mixins(AuthMixin) {
