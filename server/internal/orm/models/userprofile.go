@@ -43,7 +43,7 @@ func validateUserExistence(db *gorm.DB, toInsert bool) validation.RuleFunc {
 		if toInsert {
 			db.Where("id = ?", userId).First(&lookupObj)
 
-			if lookupObj.ID != 0 {
+			if lookupObj.ID == 0 {
 				return errors.New("Unable to find user")
 			}
 		}

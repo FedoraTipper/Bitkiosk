@@ -16,6 +16,7 @@ export default class AuthHandler {
   async Login(details: LoginDetails): Promise<boolean> {
     return new Promise<boolean>(async resolve => {
       await this.postLogin(details).then((response: authPayload) => {
+        console.log(response);
         // eslint-disable-next-line no-empty
         if (response.error.length > 0) {
           new NotificationUtil().displayError("Incorrect login details");

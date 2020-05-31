@@ -21,3 +21,16 @@ func FormatWhiteSpace(str *string) *string {
 
 	return &formattedStr
 }
+
+func RemoveEmptyQuote(str *string) *string {
+	if str == nil {
+		return str
+	}
+
+	if *str == "''" {
+		formattedStr := ""
+		return &formattedStr
+	}
+
+	return str
+}

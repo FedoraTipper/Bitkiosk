@@ -2,10 +2,8 @@ package session
 
 import (
 	"encoding/json"
-	"github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/redis"
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils"
-	redis2 "github.com/go-redis/redis/v7"
 	"github.com/gofrs/uuid"
 	"time"
 )
@@ -46,7 +44,7 @@ func GenerateSession (ttl time.Duration, authLevel AuthLevel) (string, error) {
 		}
 	}
 
-	closeSession(redisClient)
+	_ = redis.CloseRedisSession(redisClient)
 
 	return generatedKey, err
 }
@@ -59,7 +57,7 @@ func DestroySession (sessionId string) error {
 		err = redisClient.Del(sessionId).Err()
 	}
 
-	closeSession(redisClient)
+	_ = redis.CloseRedisSession(redisClient)
 
 	return err
 }
@@ -78,15 +76,8 @@ func GetSessionAuthLevel (sessionKey string) (AuthLevel, error) {
 		}
 	}
 
-	closeSession(redisClient)
+	_ = redis.CloseRedisSession(redisClient)
 
 	return sessionAuthLevel, err
 }
 
-func closeSession(client *redis2.Client) {
-	err := client.Close()
-
-	if err != nil {
-		logger.Errorfn("closeSession", err)
-	}
-}

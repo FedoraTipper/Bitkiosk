@@ -1,6 +1,7 @@
 package utils
 
 import (
+	stringUtil "github.com/fedoratipper/bitkiosk/server/pkg/utils/string"
 	"log"
 	"os"
 	"strconv"
@@ -12,6 +13,9 @@ func MustGet(k string) string {
 	if v == "" {
 		log.Panicln("ENV missing, key: " + k)
 	}
+
+	v = *stringUtil.RemoveEmptyQuote(&v)
+
 	return v
 }
 

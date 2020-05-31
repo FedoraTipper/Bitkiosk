@@ -25,9 +25,7 @@ export default class ProductView extends mixins(AuthMixin) {
   }
 
   created() {
-    console.log("asdasd")
-    if (ProductsModule.products.length == 0) {
-      console.log("asdasdasdasd");
+    if (ProductsModule.products.length === 0) {
       ProductsModule.loadActiveProducts();
     }else {
       let SKUToFind = this.$route.params["sku"];
@@ -48,7 +46,7 @@ export default class ProductView extends mixins(AuthMixin) {
     let SKUToFind = this.$route.params["sku"];
     ProductsModule.products.forEach(p => {
       if (p.SKU === SKUToFind) {
-        console.log("prodcut found");
+        console.log("product found");
         this.product = p;
       }
     });

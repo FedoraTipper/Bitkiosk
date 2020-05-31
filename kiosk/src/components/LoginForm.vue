@@ -43,6 +43,7 @@ export default class LoginForm extends Vue {
       authMethodId: 1
     };
     new Authhandler().Login(details).then(result => {
+      console.log(result);
       if (result) {
         UserModule.setUserProfile(true);
         this.$router.push(routes.home.path);
