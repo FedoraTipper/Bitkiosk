@@ -1,73 +1,93 @@
 <template>
   <div class="section">
-    <div class="container is-fluid box columns">
-      <div class="column is-two-fifths">
-        <figure class="image is-4by3 is-half">
+    <div class="container box">
+      <div class="columns">
+        <div class="column is-two-fifths">
           <img
             src="https://bulma.io/images/placeholders/1280x960.png"
             alt="Placeholder image"
+            style="max-height: 450px; width: auto"
           />
-        </figure>
-      </div>
-      <div class="column hero is-three-fifths">
-        <div class="hero-body">
-          <div class="title level-left">
-            {{ product.name }}
-          </div>
-          <div class="level-left">Stock remaining: {{ product.stock }}</div>
-          <div class="level-left subtitle has-text-weight-bold is-size-4">
-            ${{ product.price }}
-          </div>
-          <div class="level-left" style="margin-top: 10px">
-            <b-field>
-              <b-rate
-                v-model="reviewRating"
-                icon="star"
-                :max="5"
-                :show-score="true"
-                :rtl="false"
-                :disabled="true"
-              />
-              <p style="margin-left: 10px; font-size: 14px; margin-top: 2px">
-                3000 Reviews
-              </p>
-            </b-field>
-          </div>
         </div>
-        <div class="hero-foot">
-          <div class="level-item">
-            <b-numberinput :v-model="quantity"
-              controls-position="compact"
-              size="is-small"
-              type="is-warning"
-              style="max-width: 150px"
-              :editable="false"
-              min="1"
-            />
+        <div class="column hero is-three-fifths">
+          <div class="hero-body">
+            <div class="title level-left">
+              {{ product.name }}
+            </div>
+            <div class="level-left">
+              <b-taglist attached v-if="isProductInStock">
+                <b-tag type="is-success">In stock</b-tag>
+                <b-tag type="is-dark">{{ product.stock }} units</b-tag>
+              </b-taglist>
+              <!-- TODO: SUPPORT STOCK COMING SOON FEATURE -->
+              <b-taglist attached v-else-if="!isProductInStock && false">
+                <b-tag type="is-warning">Stock coming soon</b-tag>
+              </b-taglist>
+              <b-taglist attached v-else>
+                <b-tag type="is-danger">Out of stock</b-tag>
+              </b-taglist>
+            </div>
+            <div class="level-left subtitle has-text-weight-bold is-size-4" style="margin-top: 15px">
+              ${{ product.price }}
+            </div>
+            <div class="level-left" style="margin-top: 10px">
+              <b-field>
+                <b-rate
+                  v-model="reviewRating"
+                  :max="5"
+                  :show-score="true"
+                  :rtl="false"
+                  :disabled="true"
+                />
+                <p style="margin-left: 10px; font-size: 14px; margin-top: 2px">
+                  <!-- TODO: IMPLEMENT REVIEWS   -->
+                  3000 Reviews
+                </p>
+              </b-field>
+            </div>
           </div>
-          <div class="level-item">
-            <b-button
-              class="hero-buttons"
-              @click="addToCart"
-              type="is-danger"
-              size="is-medium"
-              :loading="getLoadingStatus()"
-              icon-left="basket"
-            >Add to cart</b-button>
+          <div class="hero-foot">
+            <div class="level-item">
+              <b-numberinput
+                :v-model="quantity"
+                controls-position="compact"
+                size="is-small"
+                type="is-warning"
+                style="max-width: 150px"
+                :editable="false"
+                min="1"
+                :max="product.stock"
+              />
+            </div>
+            <div class="level-item">
+              <b-button
+                class="hero-buttons"
+                @click="addToCart"
+                type="is-danger"
+                size="is-medium"
+                :loading="getLoadingStatus()"
+                icon-left="basket"
+                :disabled="!isProductInStock"
+                >Add to cart</b-button
+              >
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="container is-fluid box level">
-      <div class="level-left">
-        <div class="title">
-          Description
-        </div>
-        <div class="subtitle">
-          {{ product.description }}
-        </div>
-      </div>
+    <div class="container box">
+      <b-tabs>
+        <b-tab-item label="Description">
+          <p class="level-left">
+            {{ product.description }}
+          </p>
+        </b-tab-item>
+
+        <b-tab-item label="Reviews"> </b-tab-item>
+
+        <b-tab-item label="Specifications"> </b-tab-item>
+      </b-tabs>
     </div>
   </div>
 </template>
@@ -79,7 +99,7 @@ import Product from "@/models/product";
 @Component
 export default class ProductPage extends Vue {
   private loadingStatus: boolean = false;
-  private reviewRating: number = 3.1;
+  private reviewRating: number = 3.5;
   private quantity: number = 1;
 
   constructor() {
@@ -96,6 +116,10 @@ export default class ProductPage extends Vue {
 
   private getLoadingStatus(): boolean {
     return this.loadingStatus;
+  }
+
+  private isProductInStock(): boolean {
+    return this.product.stock > 0;
   }
 
   @Prop({ type: Product }) readonly product!: Product;

@@ -1,24 +1,20 @@
 import routeDefinitions from "@/router/routes";
 import config from "@/utils/config/config";
-import { Component, Vue } from "vue-property-decorator";
-import logger from "vuex/dist/logger";
+import {Component, Emit, Vue} from "vue-property-decorator";
 
 @Component
 export default class Mixin extends Vue {
   routeDefinitions: Object;
   config: Object;
+
   constructor() {
     super();
     this.config = config;
     this.routeDefinitions = routeDefinitions;
   }
 
-  pushToPage(path: string) {
-    if (this.$router.currentRoute.path != path) {
-      this.$router.push({ path: path });
-    } else {
-      this.$router.go(0);
-    }
+  pushToPage(name: string) {
+    this.pushToPageWithParams(name, {});
   }
 
   pushToPageWithParams(name: string, params: any) {
@@ -28,5 +24,7 @@ export default class Mixin extends Vue {
     } else {
       this.$router.go(0);
     }
+
+    this.$emit("page-change");
   }
 }

@@ -7,14 +7,14 @@
         </div>
         <div class="columns is-centered">
           <div class="box column is-4">
-            <LoginForm/>
+            <LoginForm />
           </div>
         </div>
         <div class="columns is-centered" style="margin-top: 1rem">
           <p class="has-text-grey">
-            <a :href="this.routeDefinitions.signup.path">Sign Up</a> &nbsp;·&nbsp;
-            <a href="../">Forgot Password</a> &nbsp;·&nbsp;
-            <a href="../">Need Help?</a>
+            <a @click="pushToPage(routeDefinitions.signup.name)">Sign Up</a> &nbsp;·&nbsp;
+            <a @click="pushToPage(routeDefinitions.home.name)">Forgot Password</a> &nbsp;·&nbsp;
+            <a @click="pushToPage(routeDefinitions.home.name)">Need Help?</a>
           </p>
         </div>
       </div>

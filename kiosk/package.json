@@ -10,6 +10,12 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.28",
+    "@fortawesome/free-solid-svg-icons": "^5.13.0",
+    "@fortawesome/vue-fontawesome": "^0.1.9",
+    "@mdi/font": "^5.3.45",
+    "@mdi/js": "^5.3.45",
+    "@mdi/svg": "^5.3.45",
     "@types/js-cookie": "^2.2.4",
     "@types/sprintf-js": "^1.1.2",
     "axios": "^0.19.2",

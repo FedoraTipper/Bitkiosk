@@ -12,11 +12,11 @@
         </div>
         <div class="columns is-centered">
           <p class="has-text-grey" style="margin-top: 1rem">
-            <a @click="pushToPage(routeDefinitions.login.path)">
+            <a @click="pushToPage(routeDefinitions.login.name)">
               Have an account?
             </a>
             &nbsp;·&nbsp;
-            <a href="../">Need Help?</a>
+            <a @click="pushToPage(routeDefinitions.home.name)">Need Help?</a>
           </p>
         </div>
       </div>

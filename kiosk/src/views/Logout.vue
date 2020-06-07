@@ -17,7 +17,7 @@ export default {
       .Logout()
       .then(() => {
         UserModule.destroyUserSession();
-        this.$router.push(this.routeDefinitions.home.path);
+        this.pushToPage(this.routeDefinitions.home.name);
       })
       .catch(error => {
         new NotificationUtil().displayError("Unable to log you out.");
