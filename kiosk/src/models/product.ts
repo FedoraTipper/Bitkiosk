@@ -4,9 +4,12 @@ import User from "@/models/user.ts";
 export default class Product implements IProduct {
   private _SKU!: string;
   private _description!: string;
+  private _shortDescription!: string;
   private _name!: string;
   private _price!: number;
   private _stock!: number;
+  private _rating!: number;
+  private _reviewCount!: number;
   private _createdByAdmin!: User;
   private _startDate!: Date;
   private _endDate!: Date;
@@ -19,8 +22,11 @@ export default class Product implements IProduct {
     this._SKU = obj.SKU;
     this._name = obj.name;
     this._description = obj.description;
+    this._shortDescription = obj.shortDescription;
     this._price = obj.price;
     this._stock = obj.stock;
+    this._rating = obj.rating;
+    this._reviewCount = obj.reviewCount;
     this._startDate = new Date(obj.startDate);
     this._endDate = new Date(obj.endDate);
     this._createdAt = new Date(obj.createdAt);
@@ -43,6 +49,17 @@ export default class Product implements IProduct {
     this._description = value;
   }
 
+  get shortDescription(): string {
+    if (this._shortDescription.length > 0)
+      return this._shortDescription;
+
+    return "No description";
+  }
+
+  set shortDescription(value: string) {
+    this._shortDescription = value;
+  }
+
   get name(): string {
     return this._name;
   }
@@ -61,6 +78,22 @@ export default class Product implements IProduct {
 
   get stock(): number {
     return this._stock;
+  }
+
+  get rating(): number {
+    return this._rating;
+  }
+
+  set rating(value: number) {
+    this._rating = value;
+  }
+
+  get reviewCount(): number {
+    return this._reviewCount;
+  }
+
+  set reviewCount(value: number) {
+    this._reviewCount = value;
   }
 
   set stock(value: number) {
@@ -105,5 +138,16 @@ export default class Product implements IProduct {
 
   set updatedAt(value: Date) {
     this._updatedAt = value;
+  }
+
+  public getReviewDisplay(): string {
+    if (this.reviewCount == 0) {
+      return "No Reviews";
+    }
+
+    let display = this.reviewCount + " Review";
+    if (this.reviewCount > 1)
+      display += "s";
+    return display;
   }
 }

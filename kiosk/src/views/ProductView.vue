@@ -46,7 +46,6 @@ export default class ProductView extends mixins(AuthMixin) {
     let SKUToFind = this.$route.params["sku"];
     ProductsModule.products.forEach(p => {
       if (p.SKU === SKUToFind) {
-        console.log("product found");
         this.product = p;
       }
     });

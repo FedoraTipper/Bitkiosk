@@ -10,7 +10,8 @@ import (
 	tf "github.com/fedoratipper/bitkiosk/server/internal/gql/resolvers/transformations"
 	logger "github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
-	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/auth"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/user"
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils/passwordvalidator"
 	stringUtil "github.com/fedoratipper/bitkiosk/server/pkg/utils/string"
 	"strings"
@@ -78,10 +79,10 @@ func userCreate(r *mutationResolver, input models.NewUser) (string, error) {
 	if err == nil {
 		tokenDigest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
 
-		db, err = (&dbm.AuthenticationMatrix{UserID: userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token: tokenDigest}).Create(db)
+		db, err = (&auth.AuthenticationMatrix{UserID: userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token: tokenDigest}).Create(db)
 
 		if err == nil {
-			userProfileDbo := &dbm.UserProfile{
+			userProfileDbo := &user.UserProfile{
 				UserID:      userDbo.ID,
 				FirstName:   stringUtil.FormatNameString(input.FirstName),
 				LastName:    stringUtil.FormatNameString(input.LastName),
@@ -137,7 +138,7 @@ func userList(r *queryResolver) ([]*models.User, error) {
 
 	db := r.ORM.DB.New()
 
-	var dbRecords = []dbm.User{}
+	var dbRecords = []user.User{}
 	db.Preload("UserProfile").Find(&dbRecords)
 
 	if dbRecords == nil {

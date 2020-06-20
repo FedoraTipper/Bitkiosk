@@ -27,7 +27,7 @@
           :type="emailError.length > 0 ? 'is-danger' : ''"
           :message="emailError"
         >
-          <b-input type="email" v-model="email" @click="console.log(email)" />
+          <b-input type="email" v-model="email" icon="at" />
         </b-field>
       </div>
     </div>

@@ -2,8 +2,11 @@ type Product {
     SKU: String!
     name: String!
     description: String!
+    shortDescription: String!
     price: Float!
     stock: Int!
+    rating: Float!
+    reviewCount: Int!
     startDate: String!
     endDate: String
     createdByAdmin: User
@@ -14,6 +17,7 @@ type Product {
 input NewProduct {
     SKU: String!
     name: String!
+    shortDescription: String!
     description: String!
     price: Float!
     stock: Int!

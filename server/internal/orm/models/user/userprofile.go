@@ -1,20 +1,21 @@
-package models
+package user
 
 import (
 	"errors"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/jinzhu/gorm"
 )
 
 type UserProfile struct {
-	BaseModelSoftDelete
+	models.BaseModelSoftDelete
 	UserID uint `db:"user_id" gorm:"index:user_id_profile_idx"`
 	FirstName *string  `db:"first_name"`
 	LastName  *string  `db:"last_name"`
 }
 
 func (toCreate *UserProfile) Create(db *gorm.DB) (*gorm.DB, error) {
-	return CreateObject(toCreate, toCreate, db)
+	return models.CreateObject(toCreate, toCreate, db)
 }
 
 func (toCreate *UserProfile) BeforeCreate(db *gorm.DB) (err error) {
@@ -30,29 +31,14 @@ func (up *UserProfile) Validate(db *gorm.DB, toInsert bool) error {
 			up,
 			validation.Field(&up.FirstName, validation.Length(0, 50)),
 			validation.Field(&up.LastName, validation.Length(0, 50)),
-			validation.Field(&up.UserID, validation.By(validateUserExistence(db, toInsert))),
-			validation.Field(&up.UserID, validation.By(validateUserProfileConstraint(db, toInsert, up.ID))),
+			validation.Field(&up.UserID, validation.By(ValidateUserExistence(db, toInsert))),
+			validation.Field(&up.UserID, validation.By(ValidateUserProfileConstraint(db, toInsert, up.ID))),
 			)
 }
 
-func validateUserExistence(db *gorm.DB, toInsert bool) validation.RuleFunc {
-	return func(value interface{}) error {
-		userId, _ := value.(uint)
-		var lookupObj User
-
-		if toInsert {
-			db.Where("id = ?", userId).First(&lookupObj)
-
-			if lookupObj.ID == 0 {
-				return errors.New("Unable to find user")
-			}
-		}
-		return nil
-	}
-}
 
 // One profile per user - Used when updating
-func validateUserProfileConstraint(db *gorm.DB, toInsert bool, profileId uint) validation.RuleFunc {
+func ValidateUserProfileConstraint(db *gorm.DB, toInsert bool, profileId uint) validation.RuleFunc {
 	return func(value interface{}) error {
 		userId, _ := value.(uint)
 		var lookupObj User

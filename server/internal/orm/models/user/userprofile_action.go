@@ -1,16 +1,15 @@
-package actions
+package user
 
 import (
-	"github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	"github.com/fedoratipper/bitkiosk/server/internal/redis"
 	"github.com/jinzhu/gorm"
 	"strconv"
 )
 
-func LoadUserProfile(db *gorm.DB, userId uint) *models.UserProfile {
-	var profile models.UserProfile
+func LoadUserProfile(db *gorm.DB, userId uint) *UserProfile {
+	var profile UserProfile
 
-	profile = redis.LoadObjectFromCache(models.UserProfile{}, strconv.Itoa(int(userId))).(models.UserProfile)
+	profile = redis.LoadObjectFromCache(UserProfile{}, strconv.Itoa(int(userId))).(UserProfile)
 
 	if profile.ID == 0 {
 		db.Where("user_id = ?", userId).Find(&profile)

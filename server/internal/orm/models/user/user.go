@@ -1,21 +1,23 @@
-package models
+package user
 
 import (
 	"errors"
+	"github.com/fedoratipper/bitkiosk/server/internal/authentication/session"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	"github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/jinzhu/gorm"
 )
 
 type User struct {
-	BaseModelSoftDelete
+	models.BaseModelSoftDelete
 	Email       string `db:"email" gorm:"unique_index;varchar(150);index:user_email_idx"`
 	Role        uint   `db:"role" gorm:"not null; default:1"`
 	UserProfile *UserProfile
 }
 
 func (toCreate *User) Create(db *gorm.DB) (*gorm.DB, error) {
-	return CreateObject(toCreate, toCreate, db)
+	return models.CreateObject(toCreate, toCreate, db)
 }
 
 func (toCreate *User) BeforeCreate(db *gorm.DB) (err error) {
@@ -30,12 +32,12 @@ func (u *User) Validate(db *gorm.DB, toInsert bool) error {
 	return validation.ValidateStruct(
 			u,
 			validation.Field(&u.Email, validation.Required, is.Email),
-			validation.Field(&u.Email, validation.By(validateEmailUniqueness(db, toInsert, u.ID))),
+			validation.Field(&u.Email, validation.By(ValidateEmailUniqueness(db, toInsert, u.ID))),
 			validation.Field(&u.Role, validation.Required.When(u.Role < 0).Error("Role needs to be greater than 0")),
 		)
 }
 
-func validateEmailUniqueness(db *gorm.DB, toInsert bool, id uint) validation.RuleFunc {
+func ValidateEmailUniqueness(db *gorm.DB, toInsert bool, id uint) validation.RuleFunc {
 	return func(value interface{}) error {
 		email, _ := value.(string)
 		var lookupObj User
@@ -50,6 +52,37 @@ func validateEmailUniqueness(db *gorm.DB, toInsert bool, id uint) validation.Rul
 			return errors.New("Email address already in use")
 		} else if lookupObj.ID != 0 && !toInsert {
 			return errors.New("New email address already in use")
+		}
+
+		return nil
+	}
+}
+
+func ValidateUserExistence(db *gorm.DB, toInsert bool) validation.RuleFunc {
+	return func(value interface{}) error {
+		userId, _ := value.(uint)
+		var lookupObj User
+
+		if toInsert {
+			lookupObj = *LoadUserWithId(userId, db)
+
+			if lookupObj.ID == 0 {
+				return errors.New("Unable to find user")
+			}
+		}
+		return nil
+	}
+}
+
+func ValidateAdminExists(db *gorm.DB, objectName string) validation.RuleFunc {
+	return func(value interface{}) error {
+		adminId, _ := value.(uint)
+		var lookupObj User
+
+		db.Where("id = ? and role > ?", adminId, session.AdminAuth).First(&lookupObj)
+
+		if lookupObj.ID != 0 {
+			return errors.New("Invalid admin assigned to " + objectName)
 		}
 
 		return nil

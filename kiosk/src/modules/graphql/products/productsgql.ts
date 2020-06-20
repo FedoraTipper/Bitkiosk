@@ -14,6 +14,7 @@ export default class ProductsGQL {
       await GQLClient.request(ProductQueries.loadActiveProducts, {})
         .then(response => {
           if (response) {
+            console.log(response);
             for (let productResponse of response["loadActiveProducts"]) {
               let product: Product = new Product();
               product.setProductFromResponseObject(productResponse);

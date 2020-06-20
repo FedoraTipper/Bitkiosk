@@ -5,7 +5,8 @@ import (
 	"github.com/fedoratipper/bitkiosk/server/internal/digest"
 	"github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
-	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/auth"
+	user2 "github.com/fedoratipper/bitkiosk/server/internal/orm/models/user"
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils"
 	timeUtil "github.com/fedoratipper/bitkiosk/server/pkg/utils/time"
 	"github.com/gin-gonic/gin"
@@ -54,8 +55,8 @@ func AuthenticationHandler(orm *orm.ORM) gin.HandlerFunc {
 
 		var authDetails authenticationDetails
 
-		var storedUserAuthMatrix dbm.AuthenticationMatrix
-		var user dbm.User
+		var storedUserAuthMatrix auth.AuthenticationMatrix
+		var user user2.User
 
 		db := orm.DB.New().Begin()
 
@@ -64,7 +65,7 @@ func AuthenticationHandler(orm *orm.ORM) gin.HandlerFunc {
 			return
 		}
 
-		authMethod := dbm.GetAuthMethod(loginDetails.AuthMethodId)
+		authMethod := auth.GetAuthMethod(loginDetails.AuthMethodId)
 
 		if authMethod == nil{
 			setAuthResponse(c, &authDetails)

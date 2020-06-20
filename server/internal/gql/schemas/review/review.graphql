@@ -1,0 +1,14 @@
+type Review {
+    userName: String!
+    productSku: String!
+    textReview: String!
+    rating: Int!
+    createAt: String!
+}
+
+input NewReview {
+    productSku: String!
+    email: String!
+    textReview: String!
+    rating: Int!
+}

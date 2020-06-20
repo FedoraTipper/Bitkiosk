@@ -1,14 +1,16 @@
-package models
+package auth
 
 import (
 	"errors"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/user"
 	"github.com/jinzhu/gorm"
 )
 
 type AuthenticationMatrix struct {
-	BaseModelSoftDelete
+	models.BaseModelSoftDelete
 	UserID       uint       `gorm:"not null;index:user_auth_matrix_idx" db:"user_id"`
-	User         User       `gorm:"-"`
+	User         user.User  `gorm:"-"`
 	AuthMethodID uint       `gorm:"not null" db:"auth_method_id"`
 	AuthMethod   AuthMethod `gorm:"-"`
 	Token        string     `gorm:"not null" db:"token"`
@@ -18,7 +20,7 @@ func (toCreate *AuthenticationMatrix) Create(db *gorm.DB) (*gorm.DB, error) {
 	err := toCreate.BeforeCreate(db)
 
 	if err == nil {
-		db, err = CreateObject(toCreate, toCreate, db)
+		db, err = models.CreateObject(toCreate, toCreate, db)
 	}
 
 	return db, err

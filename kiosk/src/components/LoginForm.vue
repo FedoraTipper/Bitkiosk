@@ -5,14 +5,14 @@
       :type="emailErrors.length != 0 ? 'is-danger' : ''"
       :message="emailErrors"
     >
-      <b-input type="email" v-model="email" />
+      <b-input type="email" v-model="email" icon="at"/>
     </b-field>
     <b-field
       label="Password"
       :type="passwordErrors.length != 0 ? 'is-danger' : ''"
       :message="passwordErrors"
     >
-      <b-input v-model="password" type="password" />
+      <b-input v-model="password" type="password" icon="lock"/>
     </b-field>
 <!--    <b-checkbox v-model="rememberMe">-->
 <!--      Remember me-->

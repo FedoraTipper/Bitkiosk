@@ -3,13 +3,21 @@
 package models
 
 type NewProduct struct {
-	Sku         string  `json:"SKU"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Price       float64 `json:"price"`
-	Stock       int     `json:"stock"`
-	StartDate   string  `json:"startDate"`
-	EndDate     *string `json:"endDate"`
+	Sku              string  `json:"SKU"`
+	Name             string  `json:"name"`
+	ShortDescription string  `json:"shortDescription"`
+	Description      string  `json:"description"`
+	Price            float64 `json:"price"`
+	Stock            int     `json:"stock"`
+	StartDate        string  `json:"startDate"`
+	EndDate          *string `json:"endDate"`
+}
+
+type NewReview struct {
+	ProductSku string `json:"productSku"`
+	Email      string `json:"email"`
+	TextReview string `json:"textReview"`
+	Rating     int    `json:"rating"`
 }
 
 type NewUser struct {
@@ -21,16 +29,27 @@ type NewUser struct {
 }
 
 type Product struct {
-	Sku            string  `json:"SKU"`
-	Name           string  `json:"name"`
-	Description    string  `json:"description"`
-	Price          float64 `json:"price"`
-	Stock          int     `json:"stock"`
-	StartDate      string  `json:"startDate"`
-	EndDate        *string `json:"endDate"`
-	CreatedByAdmin *User   `json:"createdByAdmin"`
-	CreatedAt      *string `json:"createdAt"`
-	UpdatedAt      *string `json:"updatedAt"`
+	Sku              string  `json:"SKU"`
+	Name             string  `json:"name"`
+	Description      string  `json:"description"`
+	ShortDescription string  `json:"shortDescription"`
+	Price            float64 `json:"price"`
+	Stock            int     `json:"stock"`
+	Rating           float64 `json:"rating"`
+	ReviewCount      int     `json:"reviewCount"`
+	StartDate        string  `json:"startDate"`
+	EndDate          *string `json:"endDate"`
+	CreatedByAdmin   *User   `json:"createdByAdmin"`
+	CreatedAt        *string `json:"createdAt"`
+	UpdatedAt        *string `json:"updatedAt"`
+}
+
+type Review struct {
+	UserName   string `json:"userName"`
+	ProductSku string `json:"productSku"`
+	TextReview string `json:"textReview"`
+	Rating     int    `json:"rating"`
+	CreateAt   string `json:"createAt"`
 }
 
 type UpdatedProfile struct {

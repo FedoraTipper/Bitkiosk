@@ -1,20 +1,19 @@
-package actions
+package user
 
 import (
-	"github.com/fedoratipper/bitkiosk/server/internal/orm/models"
 	"github.com/jinzhu/gorm"
 )
 
-func LoadUserWithEmail(email string, db *gorm.DB) *models.User {
-	var user models.User
+func LoadUserWithEmail(email string, db *gorm.DB) *User {
+	var user User
 
 	db.Where("email = ?", email).Preload("UserProfile").Find(&user)
 
 	return &user
 }
 
-func LoadUserWithId(id uint, db *gorm.DB) *models.User {
-	var user models.User
+func LoadUserWithId(id uint, db *gorm.DB) *User {
+	var user User
 
 	//cacheObject := redis.LoadObjectFromCache(models.User{}, strconv.Itoa(int(id)))
 	//if cacheObject != nil {

@@ -9,8 +9,7 @@ import (
 	tf "github.com/fedoratipper/bitkiosk/server/internal/gql/resolvers/transformations"
 	"github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
-	"github.com/fedoratipper/bitkiosk/server/internal/orm/actions"
-	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/user"
 )
 
 func (r *mutationResolver) UpdateUserProfile(ctx context.Context, input gqlModels.UpdatedProfile) (*gqlModels.UserProfile, error) {
@@ -40,17 +39,17 @@ func (r *queryResolver) UserProfile(ctx context.Context, email *string) (*gqlMod
 		return nil, errors.New("not authenticated for query")
 	}
 
-	var userToFind *dbm.User
+	var userToFind *user.User
 
 	// TODO MOVE THIS SOMEWHERE ELSE
 	if email != nil && *email != ""{
 		if authLevel.AuthLevel == session.AdminAuth {
-			userToFind = actions.LoadUserWithEmail(*email, r.ORM.DB.New())
+			userToFind = user.LoadUserWithEmail(*email, r.ORM.DB.New())
 		} else {
 			return nil, errors.New("Unable to access user information")
 		}
 	} else {
-		userToFind = actions.LoadUserWithId(uint(authLevel.UID), r.ORM.DB.New())
+		userToFind = user.LoadUserWithId(uint(authLevel.UID), r.ORM.DB.New())
 	}
 
 	if userToFind == nil {

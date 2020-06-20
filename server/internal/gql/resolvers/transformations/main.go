@@ -3,8 +3,9 @@ package transformations
 import (
 	"errors"
 	gql "github.com/fedoratipper/bitkiosk/server/internal/gql/models"
-	"github.com/fedoratipper/bitkiosk/server/internal/orm/actions"
-	dbm "github.com/fedoratipper/bitkiosk/server/internal/orm/models"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/product"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/review"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/user"
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils/date"
 	stringUtil "github.com/fedoratipper/bitkiosk/server/pkg/utils/string"
 	"github.com/jinzhu/gorm"
@@ -12,7 +13,7 @@ import (
 )
 
 // DBUserToGQLUser transforms [user] db input to gql type
-func DBUserToGQLUser(i *dbm.User) (o *gql.User, err error) {
+func DBUserToGQLUser(i *user.User) (o *gql.User, err error) {
 	o = &gql.User{
 		Email:     i.Email,
 		Role:	   int(i.Role),
@@ -28,8 +29,8 @@ func DBUserToGQLUser(i *dbm.User) (o *gql.User, err error) {
 }
 
 // GQLInputUserToDBUser transforms [user] gql input to db model
-func GQLInputUserToDBUser(i *gql.NewUser, update bool) (o *dbm.User, err error) {
-	o = &dbm.User{
+func GQLInputUserToDBUser(i *gql.NewUser, update bool) (o *user.User, err error) {
+	o = &user.User{
 		Email:     i.Email,
 	}
 
@@ -48,7 +49,7 @@ func GQLInputUserToDBUser(i *gql.NewUser, update bool) (o *dbm.User, err error) 
 	return o, err
 }
 
-func DBUserProfileToGQLUserProfile(up *dbm.UserProfile, u *dbm.User) (o *gql.UserProfile, err error) {
+func DBUserProfileToGQLUserProfile(up *user.UserProfile, u *user.User) (o *gql.UserProfile, err error) {
 
 	if u.ID == 0 {
 		return nil, errors.New("unable to find user")
@@ -68,7 +69,7 @@ func DBUserProfileToGQLUserProfile(up *dbm.UserProfile, u *dbm.User) (o *gql.Use
 }
 
 
-func UpdatedDBUserProfileToGQLUserProfile(up *dbm.UserProfile, email string) (o *gql.UserProfile, err error) {
+func UpdatedDBUserProfileToGQLUserProfile(up *user.UserProfile, email string) (o *gql.UserProfile, err error) {
 
 	if up.ID == 0 {
 		return nil, errors.New("unable to find user profile")
@@ -83,13 +84,13 @@ func UpdatedDBUserProfileToGQLUserProfile(up *dbm.UserProfile, email string) (o 
 	return o, err
 }
 
-func GQLUpdateUserProfileToDBUserProfile(i *gql.UpdatedProfile, db *gorm.DB) (*dbm.UserProfile, error) {
+func GQLUpdateUserProfileToDBUserProfile(i *gql.UpdatedProfile, db *gorm.DB) (*user.UserProfile, error) {
 
 	if i.Email == "" {
 		return nil, errors.New("unable to find user profile")
 	}
 
-	var userProfile dbm.UserProfile
+	var userProfile user.UserProfile
 
 	db = db.Joins("JOIN users on users.id = user_profiles.user_id").Where("users.email like ?", i.Email).Find(&userProfile)
 
@@ -103,14 +104,15 @@ func GQLUpdateUserProfileToDBUserProfile(i *gql.UpdatedProfile, db *gorm.DB) (*d
 	return &userProfile, nil
 }
 
-func GQLProductToDBProduct(i *gql.NewProduct, adminId uint) (*dbm.Product, error) {
-	product := &dbm.Product{
-		Name: *stringUtil.FormatNameString(&i.Name),
-		Sku: *stringUtil.FormatWhiteSpace(&i.Sku),
-		Stock: i.Stock,
-		AdminId: adminId,
-		Description: strings.TrimSpace(i.Description),
-		Price: i.Price,
+func GQLProductToDBProduct(i *gql.NewProduct, adminId uint) (*product.Product, error) {
+	product := &product.Product{
+		Name:             *stringUtil.FormatNameString(&i.Name),
+		Sku:              *stringUtil.FormatWhiteSpace(&i.Sku),
+		Stock:            i.Stock,
+		AdminId:          adminId,
+		Description: 	  strings.TrimSpace(i.Description),
+		ShortDescription: strings.TrimSpace(i.ShortDescription),
+		Price:            i.Price,
 	}
 
 	parsedStartDate, err := date.ParseSqlDate(i.StartDate)
@@ -134,20 +136,26 @@ func GQLProductToDBProduct(i *gql.NewProduct, adminId uint) (*dbm.Product, error
 	return product, nil
 }
 
-func DBProductToGQLProduct(p *dbm.Product, db *gorm.DB) (*gql.Product, error) {
-	product := &gql.Product{
-		Sku:           	p.Sku,
-		Name:           p.Name,
-		Description:    p.Description,
-		Price:          p.Price,
-		Stock:          int(p.Stock),
-		StartDate:      *date.FormatToSqlDate(p.StartDate),
-		EndDate:        date.FormatToSqlDate(p.EndDate),
-		CreatedAt:      date.FormatToSqlDate(&p.CreatedAt),
-		UpdatedAt:      date.FormatToSqlDate(p.UpdatedAt),
+func DBProductToGQLProduct(p *product.Product, db *gorm.DB) (*gql.Product, error) {
+	gqlProduct := &gql.Product{
+		Sku:           		p.Sku,
+		Name:          		p.Name,
+		ShortDescription:   p.ShortDescription,
+		Description:		p.Description,
+		Price:          	p.Price,
+		Stock:          	p.Stock,
+		StartDate:      	*date.FormatToSqlDate(p.StartDate),
+		EndDate:        	date.FormatToSqlDate(p.EndDate),
+		CreatedAt:      	date.FormatToSqlDate(&p.CreatedAt),
+		UpdatedAt:      	date.FormatToSqlDate(p.UpdatedAt),
 	}
 
-	user := actions.LoadUserWithId(p.AdminId, db)
+	rating, reviewCount :=  review.LoadAverageRatingAndRatingCountForProduct(p.ID, db)
+
+	gqlProduct.Rating = rating
+	gqlProduct.ReviewCount = reviewCount
+
+	user := user.LoadUserWithId(p.AdminId, db)
 
 	if user != nil {
 		adminUser, err := DBUserToGQLUser(user)
@@ -156,8 +164,8 @@ func DBProductToGQLProduct(p *dbm.Product, db *gorm.DB) (*gql.Product, error) {
 			return nil, err
 		}
 
-		product.CreatedByAdmin = adminUser
+		gqlProduct.CreatedByAdmin = adminUser
 	}
 
-	return product, nil
+	return gqlProduct, nil
 }

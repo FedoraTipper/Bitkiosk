@@ -1,5 +1,5 @@
 <template>
-  <div class="columns is-multiline is-centered is-mobile" style="margin-right: 10px; margin-left: 10px">
+  <div class="columns is-multiline is-centered is-mobile" style="margin:10px 10px 0px 10px">
     <div class="column is-one-fifth-desktop is-full-mobile is-one-third-tablet" style="width: 300px;" v-for="product in products" v-bind:key="product.SKU">
       <Product :product="product" />
     </div>

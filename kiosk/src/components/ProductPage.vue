@@ -33,15 +33,14 @@
             <div class="level-left" style="margin-top: 10px">
               <b-field>
                 <b-rate
-                  v-model="reviewRating"
+                  v-model="product.rating"
                   :max="5"
                   :show-score="true"
                   :rtl="false"
                   :disabled="true"
                 />
                 <p style="margin-left: 10px; font-size: 14px; margin-top: 2px">
-                  <!-- TODO: IMPLEMENT REVIEWS   -->
-                  3000 Reviews
+                  {{product.getReviewDisplay()}}
                 </p>
               </b-field>
             </div>
@@ -99,7 +98,6 @@ import Product from "@/models/product";
 @Component
 export default class ProductPage extends Vue {
   private loadingStatus: boolean = false;
-  private reviewRating: number = 3.5;
   private quantity: number = 1;
 
   constructor() {

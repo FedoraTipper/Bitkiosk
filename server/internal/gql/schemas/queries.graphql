@@ -9,4 +9,7 @@ type Query {
 
     # authentication
     #authenticate(authDetails: loginDetails!): AuthResponse!
+
+    # reviews
+    loadReviewsForProduct(productSku: String!): [Review]!
 }

@@ -7,4 +7,7 @@ type Mutation {
     createProduct(input: NewProduct): Product!
     #updateStockCount(input: ProductStock): Product!
     #updateProduct(input: UpdatedProduct!): Product!
+
+    #Review
+    createReview(input: NewReview): String!
 }

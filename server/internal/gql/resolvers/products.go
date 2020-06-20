@@ -9,7 +9,7 @@ import (
 	tf "github.com/fedoratipper/bitkiosk/server/internal/gql/resolvers/transformations"
 	"github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm"
-	"github.com/fedoratipper/bitkiosk/server/internal/orm/actions"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/product"
 )
 
 func (r *queryResolver) LoadActiveProducts(ctx context.Context, limit *int, offset *int) ([]*models.Product, error) {
@@ -17,10 +17,10 @@ func (r *queryResolver) LoadActiveProducts(ctx context.Context, limit *int, offs
 
 	db := r.ORM.DB.New().Begin()
 
-	products := actions.LoadActiveProducts(db)
+	products := product.LoadActiveProducts(db)
 
-	for _,product := range products {
-		if gqlProduct, err := tf.DBProductToGQLProduct(&product, db); err == nil {
+	for _, p := range products {
+		if gqlProduct, err := tf.DBProductToGQLProduct(&p, db); err == nil {
 			gqlReturn = append(gqlReturn, gqlProduct)
 		} else {
 			return nil, err

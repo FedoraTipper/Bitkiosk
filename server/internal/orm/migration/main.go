@@ -4,29 +4,36 @@ import (
 	"fmt"
 	log "github.com/fedoratipper/bitkiosk/server/internal/logger"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm/migration/jobs"
-	"github.com/fedoratipper/bitkiosk/server/internal/orm/models"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/auth"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/product"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/review"
+	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/user"
 	"github.com/jinzhu/gorm"
 	"gopkg.in/gormigrate.v1"
 )
 
 func updateMigration(db *gorm.DB) error {
 	return db.AutoMigrate(
-		&models.User{},
-		&models.AuthenticationMatrix{},
-		&models.AuthMethod{},
-		&models.UserProfile{},
-		&models.Product{},
+		&user.User{},
+		&auth.AuthenticationMatrix{},
+		&auth.AuthMethod{},
+		&user.UserProfile{},
+		&product.Product{},
+		&review.Review{},
 	).Error
 }
 
 func updateConstraints(db *gorm.DB) error {
-	if err := db.Model(&models.AuthenticationMatrix{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+	if err := db.Model(&auth.AuthenticationMatrix{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
 		return err
 	}
-	if err := db.Model(&models.UserProfile{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+	if err := db.Model(&user.UserProfile{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
 		return err
 	}
-	if err := db.Model(&models.Product{}).AddForeignKey("admin_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+	if err := db.Model(&product.Product{}).AddForeignKey("admin_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+		return err
+	}
+	if err := db.Model(&review.Review{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
 		return err
 	}
 	return nil
