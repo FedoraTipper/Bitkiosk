@@ -27,7 +27,9 @@ func (tr *Review) Validate(db *gorm.DB, toInsert bool) error {
 	return validation.ValidateStruct(
 		tr,
 		validation.Field(&tr.UserID, validation.By(user.ValidateUserExistence(db, toInsert))),
-		validation.Field(&tr.ProductID, validation.By(product.ValidateProductSkuExistence(db))),
+		validation.Field(&tr.ProductID, validation.By(product.ValidateProductExistence(db))),
 		validation.Field(&tr.TextReview, validation.Length(0, 4096)),
+		validation.Field(&tr.Rating, validation.Max(5)),
+		validation.Field(&tr.Rating, validation.Min(0)),
 	)
 }

@@ -66,6 +66,25 @@ func ValidateProductSkuExistence(db *gorm.DB) validation.RuleFunc {
 	}
 }
 
+func ValidateProductExistence(db *gorm.DB) validation.RuleFunc {
+	return func(value interface{}) error {
+		id, _ := value.(uint)
+
+		if id == 0 {
+			return errors.New("Missing product id")
+		}
+
+		product := LoadProductWithId(id, db)
+
+		if product.ID == 0 {
+			logger.Errorfn("ValidateProductExistence", errors.New("Unable to find product with id " + string(id)))
+			return errors.New("Unable to find product")
+		}
+
+		return nil
+	}
+}
+
 func validateEndDate(startDate *time.Time) validation.RuleFunc {
 	return func(value interface{}) error {
 		endDate, _ := value.(*time.Time)

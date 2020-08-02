@@ -102,7 +102,7 @@ type MutationResolver interface {
 	CreateUser(ctx context.Context, input models.NewUser) (string, error)
 	UpdateUserProfile(ctx context.Context, input models.UpdatedProfile) (*models.UserProfile, error)
 	CreateProduct(ctx context.Context, input *models.NewProduct) (*models.Product, error)
-	CreateReview(ctx context.Context, input *models.NewReview) (string, error)
+	CreateReview(ctx context.Context, input *models.NewReview) (*models.Review, error)
 }
 type QueryResolver interface {
 	Users(ctx context.Context, limit *int, offset *int) ([]*models.User, error)
@@ -502,7 +502,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
     #updateProduct(input: UpdatedProduct!): Product!
 
     #Review
-    createReview(input: NewReview): String!
+    createReview(input: NewReview): Review!
 }`},
 	&ast.Source{Name: "internal/gql/schemas/product/product.graphql", Input: `type Product {
     SKU: String!
@@ -942,10 +942,10 @@ func (ec *executionContext) _Mutation_createReview(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*models.Review)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNReview2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐReview(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Product_SKU(ctx context.Context, field graphql.CollectedField, obj *models.Product) (ret graphql.Marshaler) {
@@ -4198,6 +4198,10 @@ func (ec *executionContext) marshalNProduct2ᚖgithubᚗcomᚋfedoratipperᚋbit
 	return ec._Product(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNReview2githubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐReview(ctx context.Context, sel ast.SelectionSet, v models.Review) graphql.Marshaler {
+	return ec._Review(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNReview2ᚕᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐReview(ctx context.Context, sel ast.SelectionSet, v []*models.Review) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -4233,6 +4237,16 @@ func (ec *executionContext) marshalNReview2ᚕᚖgithubᚗcomᚋfedoratipperᚋb
 	}
 	wg.Wait()
 	return ret
+}
+
+func (ec *executionContext) marshalNReview2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐReview(ctx context.Context, sel ast.SelectionSet, v *models.Review) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Review(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

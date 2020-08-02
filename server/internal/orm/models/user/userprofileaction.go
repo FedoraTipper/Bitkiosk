@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func LoadUserProfile(db *gorm.DB, userId uint) *UserProfile {
+func LoadUserProfile(userId uint, db *gorm.DB) *UserProfile {
 	var profile UserProfile
 
 	profile = redis.LoadObjectFromCache(UserProfile{}, strconv.Itoa(int(userId))).(UserProfile)

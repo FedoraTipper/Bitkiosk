@@ -9,5 +9,5 @@ type Mutation {
     #updateProduct(input: UpdatedProduct!): Product!
 
     #Review
-    createReview(input: NewReview): String!
+    createReview(input: NewReview): Review!
 }

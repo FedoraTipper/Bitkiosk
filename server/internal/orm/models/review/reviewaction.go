@@ -17,3 +17,11 @@ func LoadAverageRatingAndRatingCountForProduct(productID uint, db *gorm.DB) (flo
 
 	return averageRating, totalReviewCount
 }
+
+func LoadReviewsForProduct(productId uint, db *gorm.DB) []Review {
+	var reviews []Review
+
+	db.Where("product_id = ?", productId).Find(&reviews)
+
+	return reviews
+}

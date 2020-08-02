@@ -83,7 +83,9 @@
           </p>
         </b-tab-item>
 
-        <b-tab-item label="Reviews"> </b-tab-item>
+        <b-tab-item label="Reviews">
+          <ReviewComponent />
+        </b-tab-item>
 
         <b-tab-item label="Specifications"> </b-tab-item>
       </b-tabs>
@@ -91,11 +93,14 @@
   </div>
 </template>
 
+
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import Product from "@/models/product";
-
-@Component
+import ReviewComponent from "@/components/ReviewComponent.vue";
+@Component({
+  components: { ReviewComponent }
+})
 export default class ProductPage extends Vue {
   private loadingStatus: boolean = false;
   private quantity: number = 1;
