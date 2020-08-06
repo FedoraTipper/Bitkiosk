@@ -1,6 +1,5 @@
 import ProductQueries from "./productqueries";
 import Product from "@/models/product";
-import IProduct from "@/models/product.d.ts";
 import gqlfactory from "@/utils/gqlclient/gqlfactory";
 import User from "@/models/user";
 
@@ -12,7 +11,7 @@ export default class ProductsGQL {
       let GQLClient = new gqlfactory().newGQLClient();
 
       await GQLClient.request(ProductQueries.loadActiveProducts, {})
-        .then(response => {
+        .then((response: any) => {
           if (response) {
             console.log(response);
             for (let productResponse of response["loadActiveProducts"]) {
@@ -24,7 +23,9 @@ export default class ProductsGQL {
             }
           }
         })
-        .catch(error => {});
+        .catch(error => {
+          // TODO: fix error logging
+        });
 
       resolve(activeProducts);
     });

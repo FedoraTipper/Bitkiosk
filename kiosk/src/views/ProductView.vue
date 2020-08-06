@@ -1,5 +1,5 @@
 <template>
-  <div v-if="product != undefined">
+  <div v-if="product !== undefined">
     <ProductPage :product="product" />
   </div>
 </template>
@@ -32,6 +32,8 @@ export default class ProductView extends mixins(AuthMixin) {
       ProductsModule.products.forEach(p => {
         if (p.SKU === SKUToFind) {
           this.product = p;
+          console.log("123");
+          console.log(p);
         }
       });
     }

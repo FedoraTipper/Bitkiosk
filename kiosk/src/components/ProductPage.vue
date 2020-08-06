@@ -84,7 +84,7 @@
         </b-tab-item>
 
         <b-tab-item label="Reviews">
-          <ReviewComponent />
+          <ReviewComponent v-if="this.product.SKU !== undefined" :sku="this.product.SKU"/>
         </b-tab-item>
 
         <b-tab-item label="Specifications"> </b-tab-item>
@@ -95,7 +95,7 @@
 
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, PropSync } from "vue-property-decorator";
 import Product from "@/models/product";
 import ReviewComponent from "@/components/ReviewComponent.vue";
 @Component({
@@ -104,6 +104,9 @@ import ReviewComponent from "@/components/ReviewComponent.vue";
 export default class ProductPage extends Vue {
   private loadingStatus: boolean = false;
   private quantity: number = 1;
+
+  @Prop({ type: Product })
+  private readonly product!: Product;
 
   constructor() {
     super();
@@ -124,7 +127,5 @@ export default class ProductPage extends Vue {
   private isProductInStock(): boolean {
     return this.product.stock > 0;
   }
-
-  @Prop({ type: Product }) readonly product!: Product;
 }
 </script>

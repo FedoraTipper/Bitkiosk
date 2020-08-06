@@ -3,7 +3,7 @@ type Review {
     productSku: String!
     textReview: String!
     rating: Int!
-    createAt: String!
+    createdAt: String!
 }
 
 input NewReview {

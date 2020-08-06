@@ -24,7 +24,7 @@ export default class UserGQL {
       };
 
       await GQLClient.request(UserQueries.getUserProfile, inputData)
-        .then(response => {
+        .then((response: any) => {
           if (response) {
             console.log(response);
             user = new User();

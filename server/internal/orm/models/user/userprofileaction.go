@@ -9,7 +9,7 @@ import (
 func LoadUserProfile(userId uint, db *gorm.DB) *UserProfile {
 	var profile UserProfile
 
-	profile = redis.LoadObjectFromCache(UserProfile{}, strconv.Itoa(int(userId))).(UserProfile)
+	//profile = redis.LoadObjectFromCache(UserProfile{}, strconv.Itoa(int(userId))).(UserProfile)
 
 	if profile.ID == 0 {
 		db.Where("user_id = ?", userId).Find(&profile)
