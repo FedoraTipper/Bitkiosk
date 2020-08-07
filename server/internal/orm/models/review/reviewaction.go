@@ -9,7 +9,7 @@ func LoadAverageRatingAndRatingCountForProduct(productID uint, db *gorm.DB) (flo
 	var averageRating float64
 	var totalReviewCount int
 
-	err := db.Raw("select count(id) as totalReviewCount, avg(rating) as averageRating from reviews where product_id = ?", productID).Row().Scan(&totalReviewCount, &averageRating)
+	err := db.New().Raw("select count(id) as totalReviewCount, coalesce(avg(rating), 0) as averageRating from reviews r where r.product_id = ?", productID).Row().Scan(&totalReviewCount, &averageRating)
 
 	if err != nil {
 		logger.Errorfn("LoadAverageRatingAndRatingCountForProduct", err)

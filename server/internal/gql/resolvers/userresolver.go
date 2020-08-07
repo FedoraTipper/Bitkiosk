@@ -71,15 +71,15 @@ func userCreate(r *mutationResolver, input models.NewUser) (string, error) {
 
 	userDbo.Role = session.UserAuth
 
-	// Create scoped clean db interface
-	db := r.ORM.DB.New().Begin()
+	// Create scoped clean tx interface
+	tx := r.ORM.DB.New().Begin()
 
-	db, err = userDbo.Create(db)
+	tx, err = userDbo.Create(tx)
 
 	if err == nil {
 		tokenDigest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
 
-		db, err = (&auth.AuthenticationMatrix{UserID: userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token: tokenDigest}).Create(db)
+		tx, err = (&auth.AuthenticationMatrix{UserID: userDbo.ID, AuthMethodID: uint(input.AuthMethodID), Token: tokenDigest}).Create(tx)
 
 		if err == nil {
 			userProfileDbo := &user.UserProfile{
@@ -88,7 +88,7 @@ func userCreate(r *mutationResolver, input models.NewUser) (string, error) {
 				LastName:    stringUtil.FormatNameString(input.LastName),
 			}
 
-			db, err = userProfileDbo.Create(db)
+			tx, err = userProfileDbo.Create(tx)
 
 			if err == nil {
 				gqlReturn = "success"
@@ -96,7 +96,7 @@ func userCreate(r *mutationResolver, input models.NewUser) (string, error) {
 		}
 	}
 
-	orm.CommitOrRollBackIfError(db, err)
+	orm.CommitOrRollBackIfErrorAndCloseSession(tx, err)
 
 	return gqlReturn, err
 }
@@ -106,25 +106,23 @@ func userUpdate(r *mutationResolver, input models.NewUser, ids ...uint) (*models
 	if err != nil {
 		return nil, err
 	}
-	// Create scoped clean db interface
-	db := r.ORM.DB.New().Begin()
+	// Create scoped clean tx interface
+	tx := r.ORM.DB.New().Begin()
 
-	var errBeforeUpdate = dbo.BeforeUpdate(db)
+	var errBeforeUpdate = dbo.BeforeUpdate(tx)
 
 	if errBeforeUpdate != nil {
+		orm.CommitOrRollBackIfErrorAndCloseSession(tx, err)
 		return nil, errBeforeUpdate
 	}
 
-	db = db.Model(&dbo).Update(dbo).First(dbo) // Or update it
+	tx = tx.Model(&dbo).Update(dbo).First(dbo) // Or update it
 
 	gql, err := tf.DBUserToGQLUser(dbo)
 
-	if err != nil {
-		return nil, err
-	}
-	db = db.Commit()
+	orm.CommitOrRollBackIfErrorAndCloseSession(tx, err)
 
-	return gql, db.Error
+	return gql, err
 }
 
 func userDelete(r *mutationResolver, id string) (bool, error) {
@@ -136,7 +134,7 @@ func userList(r *queryResolver) ([]*models.User, error) {
 	entity := "users"
 	var res []*models.User
 
-	db := r.ORM.DB.New()
+	db := r.ORM.DB
 
 	var dbRecords = []user.User{}
 	db.Preload("UserProfile").Find(&dbRecords)

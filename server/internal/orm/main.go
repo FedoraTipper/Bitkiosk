@@ -4,8 +4,8 @@ package orm
 
 import (
 	log "github.com/fedoratipper/bitkiosk/server/internal/logger"
-	"github.com/fedoratipper/bitkiosk/server/internal/orm/DBResult"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm/migration"
+	"time"
 
 	"github.com/fedoratipper/bitkiosk/server/pkg/utils"
 	"github.com/jinzhu/gorm"
@@ -21,7 +21,6 @@ type ORM struct {
 	DB *gorm.DB
 }
 
-
 func init() {
 	dialect = utils.MustGet("GORM_DIALECT")
 	dsn = utils.MustGet("GORM_CONNECTION_DSN")
@@ -36,6 +35,16 @@ func Factory() (*ORM, error) {
 	if err != nil {
 		log.Panic("[ORM] err: ", err)
 	}
+
+	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
+	db.DB().SetMaxIdleConns(10)
+
+	// SetMaxOpenConns sets the maximum number of open connections to the database.
+	db.DB().SetMaxOpenConns(100)
+
+	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
+	db.DB().SetConnMaxLifetime(time.Hour)
+
 	orm := &ORM{
 		DB: db,
 	}
@@ -50,7 +59,6 @@ func Factory() (*ORM, error) {
 }
 
 func CommitOrRollBackIfError(db *gorm.DB, err error)  {
-
 	if err == nil{
 		db = db.Commit()
 	} else {
@@ -62,18 +70,9 @@ func CommitOrRollBackIfError(db *gorm.DB, err error)  {
 	}
 }
 
-func CommitOrRollBackIfErrorAndCloseSession(db *gorm.DB, dbResult *DBResult.DBResult) (result *DBResult.DBResult) {
-	result = dbResult
-
-	if result.IsOk() {
-		db.Commit()
-	} else {
-		db.RollbackUnlessCommitted()
-	}
-
+func CommitOrRollBackIfErrorAndCloseSession(db *gorm.DB, err error) {
+	CommitOrRollBackIfError(db, err)
 	CloseDbConnectionLogIfError(db)
-
-	return result.AddErrorToResult(db.Error)
 }
 
 func CloseDbConnectionLogIfError(db *gorm.DB) {

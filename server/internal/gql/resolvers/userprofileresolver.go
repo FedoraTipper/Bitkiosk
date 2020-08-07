@@ -42,14 +42,14 @@ func (r *queryResolver) UserProfile(ctx context.Context, email *string) (*gqlMod
 	var userToFind *user.User
 
 	// TODO MOVE THIS SOMEWHERE ELSE
-	if email != nil && *email != ""{
+	if email != nil && *email != "" {
 		if authLevel.AuthLevel == session.AdminAuth {
-			userToFind = user.LoadUserWithEmail(*email, r.ORM.DB.New())
+			userToFind = user.LoadUserWithEmail(*email, r.ORM.DB)
 		} else {
 			return nil, errors.New("Unable to access user information")
 		}
 	} else {
-		userToFind = user.LoadUserWithId(uint(authLevel.UID), r.ORM.DB.New())
+		userToFind = user.LoadUserWithId(uint(authLevel.UID), r.ORM.DB)
 	}
 
 	if userToFind == nil {
@@ -81,23 +81,23 @@ func (r *queryResolver) UserProfile(ctx context.Context, email *string) (*gqlMod
 
 func updateUserProfile(r *mutationResolver, input gqlModels.UpdatedProfile) (*gqlModels.UserProfile, error) {
 
-	db := r.ORM.DB.New().Begin()
+	tx := r.ORM.DB.New().Begin()
 
-	dbo , err := tf.GQLUpdateUserProfileToDBUserProfile(&input, db)
+	dbo , err := tf.GQLUpdateUserProfileToDBUserProfile(&input, tx)
 
 	if err != nil {
 		return nil, err
 	}
 
-	db = db.Save(&dbo)
+	tx = tx.Save(&dbo)
 
-	if db.Error != nil {
+	if tx.Error != nil {
 		return nil, errors.New("unable to update user profile")
 	}
 
 	gql, err := tf.UpdatedDBUserProfileToGQLUserProfile(dbo, input.Email)
 
-	orm.CommitOrRollBackIfError(db, err)
+	orm.CommitOrRollBackIfErrorAndCloseSession(tx, err)
 
 	return gql, err
 }

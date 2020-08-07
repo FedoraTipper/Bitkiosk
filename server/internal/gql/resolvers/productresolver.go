@@ -15,8 +15,7 @@ import (
 func (r *queryResolver) LoadActiveProducts(ctx context.Context, limit *int, offset *int) ([]*models.Product, error) {
 	var gqlReturn []*models.Product
 
-	db := r.ORM.DB.New().Begin()
-
+	db := r.ORM.DB
 	products := product.LoadActiveProducts(db)
 
 	for _, p := range products {
@@ -53,15 +52,14 @@ func createProduct(r *mutationResolver, input *models.NewProduct, adminId uint) 
 		return nil, err
 	}
 
-	db := r.ORM.DB.New().Begin()
+	tx := r.ORM.DB.Begin()
+	defer orm.CommitOrRollBackIfError(tx, err)
 
-	db, err = productDbo.Create(db)
+	tx, err = productDbo.Create(tx)
 
 	if err == nil {
-		gqlReturn, err = tf.DBProductToGQLProduct(productDbo, db)
+		gqlReturn, err = tf.DBProductToGQLProduct(productDbo, tx)
 	}
-
-	orm.CommitOrRollBackIfError(db, err)
 
 	return gqlReturn, err
 }

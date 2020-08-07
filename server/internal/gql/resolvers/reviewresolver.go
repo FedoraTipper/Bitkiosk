@@ -35,8 +35,7 @@ func (r *queryResolver) LoadReviewsForProduct(ctx context.Context, productSku st
 		return nil, errors.New("Please provide a valid SKU for the product")
 	}
 
-	db := r.ORM.DB.New().Begin()
-
+	db := r.ORM.DB
 	dboProduct := product.LoadProductFromSku(productSku, db)
 
 	if dboProduct.ID == 0 {
@@ -62,9 +61,9 @@ func createReview(r *mutationResolver, input *models.NewReview, adminId uint) (*
 		return nil, errors.New("Missing product SKU for review")
 	}
 
-	db := r.ORM.DB.New().Begin()
+	tx := r.ORM.DB.New().Begin()
 
-	dboProduct := product.LoadProductFromSku(input.ProductSku, db)
+	dboProduct := product.LoadProductFromSku(input.ProductSku, tx)
 
 	if dboProduct.ID == 0 {
 		return nil, errors.New("Unable to find product sku for review")
@@ -76,13 +75,13 @@ func createReview(r *mutationResolver, input *models.NewReview, adminId uint) (*
 		return nil, err
 	}
 
-	db, err = dboReview.Create(db)
+	tx, err = dboReview.Create(tx)
 
 	if err == nil {
-		gqlReturn, err = tf.DBReviewToGQLReview(dboReview, db)
+		gqlReturn, err = tf.DBReviewToGQLReview(dboReview, tx)
 	}
 
-	orm.CommitOrRollBackIfError(db, err)
+	orm.CommitOrRollBackIfErrorAndCloseSession(tx, err)
 
 	return gqlReturn, nil
 }
