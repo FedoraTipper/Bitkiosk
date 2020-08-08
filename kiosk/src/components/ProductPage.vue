@@ -76,7 +76,7 @@
     </div>
 
     <div class="container box">
-      <b-tabs>
+      <b-tabs :animated="false" type="is-boxed">
         <b-tab-item label="Description">
           <p class="level-left">
             {{ product.description }}

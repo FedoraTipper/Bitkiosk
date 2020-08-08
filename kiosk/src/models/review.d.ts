@@ -1,5 +1,5 @@
 export interface IReview {
-  username: string
+  userDisplayName: string
   productSKU: string
   textReview: string
   rating: number

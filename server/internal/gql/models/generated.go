@@ -18,6 +18,7 @@ type NewReview struct {
 	Email      string `json:"email"`
 	TextReview string `json:"textReview"`
 	Rating     int    `json:"rating"`
+	Anonymous  *bool  `json:"anonymous"`
 }
 
 type NewUser struct {
@@ -45,11 +46,11 @@ type Product struct {
 }
 
 type Review struct {
-	UserName   string `json:"userName"`
-	ProductSku string `json:"productSku"`
-	TextReview string `json:"textReview"`
-	Rating     int    `json:"rating"`
-	CreateAt   string `json:"createAt"`
+	UserDisplayName string `json:"userDisplayName"`
+	ProductSku      string `json:"productSku"`
+	TextReview      string `json:"textReview"`
+	Rating          int    `json:"rating"`
+	CreatedAt       string `json:"createdAt"`
 }
 
 type UpdatedProfile struct {

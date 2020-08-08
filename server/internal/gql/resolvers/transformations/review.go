@@ -12,22 +12,34 @@ import (
 )
 
 func GQLReviewToDBReview(i *gql.NewReview, productId uint, userId uint) (*review.Review, error) {
+
+	isAnonymousReview := false; if i.Anonymous != nil {
+		isAnonymousReview = *i.Anonymous
+	}
+
 	dboReview := &review.Review{
 		UserID:              userId,
 		ProductID:			 productId,
 		TextReview:          i.TextReview,
 		Rating:              i.Rating,
+		Anonymous:			 isAnonymousReview,
 	}
 
 	return dboReview, nil
 }
 
 func DBReviewToGQLReview(i *review.Review, db *gorm.DB) (*gql.Review, error) {
-	userProfile := user.LoadUserProfile(i.UserID, db)
+	userDisplayName := review.DISPLAY_NAME_ANONYMOUS
 
-	if userProfile.ID == 0 {
-		logger.Errorfn("DBReviewToGQLReview", errors.New("Unable to find user profile with ID " + string(i.UserID) + " for review " + string(i.ID)))
-		return nil, errors.New("Unable to find user profile for review")
+	if !i.Anonymous {
+		userProfile := user.LoadUserProfile(i.UserID, db)
+
+		if userProfile.ID == 0 {
+			logger.Errorfn("DBReviewToGQLReview", errors.New("Unable to find user profile with ID " + string(i.UserID) + " for review " + string(i.ID)))
+			return nil, errors.New("Unable to find user profile for review")
+		}
+
+		userDisplayName = *userProfile.FirstName
 	}
 
 	product := product2.LoadProductWithId(i.ProductID, db)
@@ -38,11 +50,11 @@ func DBReviewToGQLReview(i *review.Review, db *gorm.DB) (*gql.Review, error) {
 	}
 
 	gqlReview := gql.Review{
-		UserName:   *userProfile.FirstName,
+		UserDisplayName:   userDisplayName,
 		ProductSku: product.Sku,
 		TextReview: i.TextReview,
 		Rating:     i.Rating,
-		CreateAt:   *date.FormatToSqlDate(&i.CreatedAt),
+		CreatedAt:   *date.FormatToSqlDate(&i.CreatedAt),
 	}
 
 	return &gqlReview, nil

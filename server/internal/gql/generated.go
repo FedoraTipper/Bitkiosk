@@ -74,11 +74,11 @@ type ComplexityRoot struct {
 	}
 
 	Review struct {
-		CreateAt   func(childComplexity int) int
-		ProductSku func(childComplexity int) int
-		Rating     func(childComplexity int) int
-		TextReview func(childComplexity int) int
-		UserName   func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		ProductSku      func(childComplexity int) int
+		Rating          func(childComplexity int) int
+		TextReview      func(childComplexity int) int
+		UserDisplayName func(childComplexity int) int
 	}
 
 	User struct {
@@ -313,12 +313,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Users(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 
-	case "Review.createAt":
-		if e.complexity.Review.CreateAt == nil {
+	case "Review.createdAt":
+		if e.complexity.Review.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Review.CreateAt(childComplexity), true
+		return e.complexity.Review.CreatedAt(childComplexity), true
 
 	case "Review.productSku":
 		if e.complexity.Review.ProductSku == nil {
@@ -341,12 +341,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Review.TextReview(childComplexity), true
 
-	case "Review.userName":
-		if e.complexity.Review.UserName == nil {
+	case "Review.userDisplayName":
+		if e.complexity.Review.UserDisplayName == nil {
 			break
 		}
 
-		return e.complexity.Review.UserName(childComplexity), true
+		return e.complexity.Review.UserDisplayName(childComplexity), true
 
 	case "User.createdAt":
 		if e.complexity.User.CreatedAt == nil {
@@ -546,11 +546,11 @@ input NewProduct {
     loadReviewsForProduct(productSku: String!): [Review]!
 }`},
 	&ast.Source{Name: "internal/gql/schemas/review/review.graphql", Input: `type Review {
-    userName: String!
+    userDisplayName: String!
     productSku: String!
     textReview: String!
     rating: Int!
-    createAt: String!
+    createdAt: String!
 }
 
 input NewReview {
@@ -558,6 +558,7 @@ input NewReview {
     email: String!
     textReview: String!
     rating: Int!
+    anonymous: Boolean
 }`},
 	&ast.Source{Name: "internal/gql/schemas/user/user.graphql", Input: `type User {
     email: String!
@@ -1668,7 +1669,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Review_userName(ctx context.Context, field graphql.CollectedField, obj *models.Review) (ret graphql.Marshaler) {
+func (ec *executionContext) _Review_userDisplayName(ctx context.Context, field graphql.CollectedField, obj *models.Review) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1687,7 +1688,7 @@ func (ec *executionContext) _Review_userName(ctx context.Context, field graphql.
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserName, nil
+		return obj.UserDisplayName, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1816,7 +1817,7 @@ func (ec *executionContext) _Review_rating(ctx context.Context, field graphql.Co
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Review_createAt(ctx context.Context, field graphql.CollectedField, obj *models.Review) (ret graphql.Marshaler) {
+func (ec *executionContext) _Review_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.Review) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1835,7 +1836,7 @@ func (ec *executionContext) _Review_createAt(ctx context.Context, field graphql.
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CreateAt, nil
+		return obj.CreatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3443,6 +3444,12 @@ func (ec *executionContext) unmarshalInputNewReview(ctx context.Context, obj int
 			if err != nil {
 				return it, err
 			}
+		case "anonymous":
+			var err error
+			it.Anonymous, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -3747,8 +3754,8 @@ func (ec *executionContext) _Review(ctx context.Context, sel ast.SelectionSet, o
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Review")
-		case "userName":
-			out.Values[i] = ec._Review_userName(ctx, field, obj)
+		case "userDisplayName":
+			out.Values[i] = ec._Review_userDisplayName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3767,8 +3774,8 @@ func (ec *executionContext) _Review(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "createAt":
-			out.Values[i] = ec._Review_createAt(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._Review_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

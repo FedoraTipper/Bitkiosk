@@ -2,11 +2,11 @@ export default {
   loadReviewsForProduct: `
     query getReviewsForProduct($productSku: String!) {
           loadReviewsForProduct (productSku: $productSku) {
-            userName
+            userDisplayName
             productSku
             textReview
             rating
-            createAt
+            createdAt
           }
     } 
     `,

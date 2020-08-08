@@ -2,14 +2,10 @@ import {
   VuexModule,
   Module,
   getModule,
-  MutationAction,
-  Mutation,
-  Action
+  Mutation
 } from "vuex-module-decorators";
 import store from "@/store";
-import { UserProfile } from "@/models/userprofile.ts";
 import ProductsAPI from "@/modules/graphql/products/productsgql";
-import NotificationUtil from "@/utils/notification/notificationutil";
 import Product from "@/models/product";
 
 export interface IProductsState {

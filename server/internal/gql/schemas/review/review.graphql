@@ -1,5 +1,5 @@
 type Review {
-    userName: String!
+    userDisplayName: String!
     productSku: String!
     textReview: String!
     rating: Int!
@@ -11,4 +11,5 @@ input NewReview {
     email: String!
     textReview: String!
     rating: Int!
+    anonymous: Boolean
 }

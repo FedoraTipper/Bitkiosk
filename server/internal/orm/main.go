@@ -36,14 +36,9 @@ func Factory() (*ORM, error) {
 		log.Panic("[ORM] err: ", err)
 	}
 
-	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
 	db.DB().SetMaxIdleConns(10)
-
-	// SetMaxOpenConns sets the maximum number of open connections to the database.
 	db.DB().SetMaxOpenConns(100)
-
-	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
-	db.DB().SetConnMaxLifetime(time.Hour)
+	db.DB().SetConnMaxLifetime(time.Minute * 10)
 
 	orm := &ORM{
 		DB: db,

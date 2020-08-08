@@ -1,7 +1,7 @@
 import { IReview } from "@/models/review.d.ts";
 
 export default class Review implements IReview {
-  private _username!: string;
+  private _userDisplayName!: string;
   private _productSKU!: string;
   private _textReview!: string;
   private _rating!: number;
@@ -10,19 +10,21 @@ export default class Review implements IReview {
   constructor() {}
 
   setReviewFromResponseObject(obj: IReview) {
-    this._username = obj.username;
+    console.log("setting obj")
+    console.log(obj);
+    this._userDisplayName = obj.userDisplayName;
     this._productSKU = obj.productSKU;
     this._textReview = obj.textReview;
     this._rating = obj.rating;
     this._createdAt = new Date(obj.createdAt);
   }
 
-  get username(): string {
-    return this._username;
+  get userDisplayName(): string {
+    return this._userDisplayName;
   }
 
-  set username(value: string) {
-    this._username = value;
+  set userDisplayName(value: string) {
+    this._userDisplayName = value;
   }
 
   get productSKU(): string {

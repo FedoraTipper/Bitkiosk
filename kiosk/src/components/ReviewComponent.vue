@@ -1,5 +1,15 @@
 <template>
-  <div></div>
+  <div>
+    <div v-if="reviews && reviews.length > 0">
+      <div v-for="review in reviews" v-bind:key="review.productSKU">
+        <ReviewCard :review="review" />
+        <hr>
+      </div>
+    </div>
+    <div v-else>
+      No reviews for this product
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -11,11 +21,13 @@ import {
 import Review from "@/models/review";
 import ReviewsAPI from "@/modules/graphql/reviews/reviewsgql";
 import NotificationUtil from "@/utils/notification/notificationutil";
-
-@Component
-export default class RegisterForm extends Vue {
+import ReviewCard from "@/components/ReviewCard.vue";
+@Component({
+  components: {ReviewCard}
+})
+export default class ReviewComponent extends Vue {
   private _ReviewsAPI!: ReviewsAPI;
-  private _reviews!: Array<Review>;
+  public reviews: Array<Review> = new Array<Review>();
 
   constructor() {
     super();
@@ -23,8 +35,8 @@ export default class RegisterForm extends Vue {
 
   created() {
     this.API.fetchReviewsForProductWithSku(this.sku)
-      .then(result => {
-        this._reviews = result;
+      .then(reviews => {
+        this.reviews = reviews;
       })
       .catch(err => {
         new NotificationUtil().displayError(
