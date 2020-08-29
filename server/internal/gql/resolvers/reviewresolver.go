@@ -13,6 +13,9 @@ import (
 	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/product"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/review"
 	"github.com/fedoratipper/bitkiosk/server/internal/orm/models/user"
+	"github.com/fedoratipper/bitkiosk/server/pkg/utils"
+	"github.com/fedoratipper/bitkiosk/server/pkg/utils/pointer"
+	"github.com/jinzhu/gorm"
 )
 
 func (r *mutationResolver) CreateReview(ctx context.Context, input *models.NewReview) (*models.Review, error) {
@@ -29,7 +32,7 @@ func (r *mutationResolver) CreateReview(ctx context.Context, input *models.NewRe
 	return nil, errors.New("not authenticated for query")
 }
 
-func (r *queryResolver) LoadReviewsForProduct(ctx context.Context, productSku string) ([]*models.Review, error) {
+func (r *queryResolver) LoadReviewsForProduct(ctx context.Context, productSku string, limit *int, offset *int) ([]*models.Review, error) {
 	var gqlReturn []*models.Review
 
 	if productSku == "" {
@@ -39,11 +42,17 @@ func (r *queryResolver) LoadReviewsForProduct(ctx context.Context, productSku st
 	db := r.ORM.DB
 	dboProduct := product.LoadProductFromSku(productSku, db)
 
-	if dboProduct.ID == 0 {
+	if dboProduct.Id == 0 {
 		return nil, errors.New("Invalid product found for sku " + productSku)
 	}
 
-	reviews := review.LoadReviewsForProduct(dboProduct.ID, db)
+	configLimit := utils.MustGetInt(review.LOOKUP_LIMIT)
+
+	if limit == nil || *limit > configLimit {
+		limit = &configLimit
+	}
+
+	reviews := review.LoadReviewsForProductWithLimitAndOffset(dboProduct.Id, pointer.DereferenceInt(limit), pointer.DereferenceInt(offset), db)
 
 	for _, dboReview := range reviews {
 		gqlReview, err := tf.DBReviewToGQLReview(&dboReview, db)
@@ -53,6 +62,63 @@ func (r *queryResolver) LoadReviewsForProduct(ctx context.Context, productSku st
 	}
 
 	return gqlReturn, nil
+}
+
+func (r *queryResolver) LoadTotalNumberOfReviewsForProduct(ctx context.Context, productSku string) (int, error) {
+	if productSku == "" {
+		return 0, errors.New("Please provide a valid SKU for the product")
+	}
+
+	db := r.ORM.DB
+	dboProduct := product.LoadProductFromSku(productSku, db)
+
+	if dboProduct.Id == 0 {
+		return 0, errors.New("Invalid product found for sku " + productSku)
+	}
+
+	return review.LoadTotalReviewCountForProduct(dboProduct.Id, db), nil
+}
+
+func (r *queryResolver) LoadReviewForUserWithProductSku(ctx context.Context, productSku string) (gqlReview *models.Review, err error) {
+	authLevel, err := authhandler.GetAuthLevelFromSession(ctx)
+
+	if authLevel != nil && authLevel.AuthLevel >= session.UserAuth {
+		db := r.ORM.DB
+
+		reviewByUser, err := findUserSubmittedReview(productSku, uint(authLevel.UID), db)
+
+		if err != nil {
+			return nil, err
+		}
+
+		if reviewByUser.Id != 0 {
+			gqlReview, err = tf.DBReviewToGQLReview(&reviewByUser, db)
+		}
+
+		return gqlReview, err
+	} else {
+		if err != nil {
+			logger.Error("Unable to resolve auth level with Products resolver. \n" + err.Error())
+		}
+	}
+
+	return gqlReview, nil
+}
+
+func findUserSubmittedReview(productSku string, userId uint, db *gorm.DB) (reviewByUser review.Review, _ error) {
+	if productSku == "" {
+		return reviewByUser, errors.New("Please provide a valid SKU for the product")
+	}
+
+	dboProduct := product.LoadProductFromSku(productSku, db)
+
+	if dboProduct.Id == 0 {
+		return reviewByUser, errors.New("Invalid product found for sku " + productSku)
+	}
+
+	reviewByUser = review.LoadProductReviewForUser(dboProduct.Id, userId, db)
+
+	return reviewByUser, nil
 }
 
 func createReview(r *mutationResolver, input *models.NewReview, ctxUserId uint, ctxAuthLevel uint) (*models.Review, error){
@@ -68,21 +134,21 @@ func createReview(r *mutationResolver, input *models.NewReview, ctxUserId uint, 
 
 	dboUser := user.LoadUserWithEmail(input.Email, tx)
 
-	if dboUser.ID == 0 {
+	if dboUser.Id == 0 {
 		return nil, errors.New("Unable to find user with " + input.Email + " for review")
 	}
 
-	if dboUser.ID != ctxUserId && ctxAuthLevel <= session.UserAuth {
+	if dboUser.Id != ctxUserId && ctxAuthLevel <= session.UserAuth {
 		return nil, errors.New("Insufficient privilege to create a review on behalf of user with " + input.Email)
 	}
 
 	dboProduct := product.LoadProductFromSku(input.ProductSku, tx)
 
-	if dboProduct.ID == 0 {
+	if dboProduct.Id == 0 {
 		return nil, errors.New("Unable to find product sku for review")
 	}
 
-	dboReview, err := tf.GQLReviewToDBReview(input, dboProduct.ID, dboUser.ID)
+	dboReview, err := tf.GQLReviewToDBReview(input, dboProduct.Id, dboUser.Id)
 
 	if err != nil {
 		return nil, err

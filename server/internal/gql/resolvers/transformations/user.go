@@ -47,11 +47,11 @@ func GQLInputUserToDBUser(i *gql.NewUser, update bool) (o *user.User, err error)
 
 func DBUserProfileToGQLUserProfile(up *user.UserProfile, u *user.User) (o *gql.UserProfile, err error) {
 
-	if u.ID == 0 {
+	if u.Id == 0 {
 		return nil, errors.New("unable to find user")
 	}
 
-	if up.ID == 0 {
+	if up.Id == 0 {
 		return nil, errors.New("unable to find user profile")
 	}
 
@@ -67,7 +67,7 @@ func DBUserProfileToGQLUserProfile(up *user.UserProfile, u *user.User) (o *gql.U
 
 func UpdatedDBUserProfileToGQLUserProfile(up *user.UserProfile, email string) (o *gql.UserProfile, err error) {
 
-	if up.ID == 0 {
+	if up.Id == 0 {
 		return nil, errors.New("unable to find user profile")
 	}
 
@@ -90,7 +90,7 @@ func GQLUpdateUserProfileToDBUserProfile(i *gql.UpdatedProfile, db *gorm.DB) (*u
 
 	db = db.Joins("JOIN users on users.id = user_profiles.user_id").Where("users.email like ?", i.Email).Find(&userProfile)
 
-	if userProfile.ID == 0 {
+	if userProfile.Id == 0 {
 		return nil, errors.New("unable to find user with email " + i.Email)
 	}
 

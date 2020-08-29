@@ -11,9 +11,9 @@ func LoadUserProfile(userId uint, db *gorm.DB) *UserProfile {
 
 	//profile = redis.LoadObjectFromCache(UserProfile{}, strconv.Itoa(int(userId))).(UserProfile)
 
-	if profile.ID == 0 {
+	if profile.Id == 0 {
 		db.Where("user_id = ?", userId).Find(&profile)
-		if profile.ID != 0 {
+		if profile.Id != 0 {
 			_ = redis.PutObjectInCache(profile, strconv.Itoa(int(userId)))
 		}
 	}

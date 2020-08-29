@@ -1,7 +1,7 @@
 export default {
   loadReviewsForProduct: `
-    query getReviewsForProduct($productSku: String!) {
-          loadReviewsForProduct (productSku: $productSku) {
+    query getReviewsForProduct($productSku: String!, $limit: Int, $offset: Int) {
+          loadReviewsForProduct (productSku: $productSku, limit: $limit, offset: $offset) {
             userDisplayName
             productSku
             textReview
@@ -10,16 +10,21 @@ export default {
           }
     } 
     `,
-  getUserProfile: `
-      query getUserProfile($email: String!) {
-        userProfile(email: $email) {
-          email
-          role
-          userProfile {
-            firstName
-            lastName
-           }
-        }
-      }
-   `
+  loadTotalNumberOfReviewsForProduct: `
+      query getTotalNumberOfReviewsForProduct($productSku: String!) {
+          loadTotalNumberOfReviewsForProduct (productSku: $productSku)
+    } 
+    `,
+  loadReviewForUserWithProductSku: `
+      query loadReviewForUserWithProductSku($productSku: String!) {
+          loadReviewForUserWithProductSku (productSku: $productSku) {
+            userDisplayName
+            productSku
+            textReview
+            rating
+            anonymous
+            createdAt
+          }
+    } 
+    `
 }

@@ -32,7 +32,7 @@ func (up *UserProfile) Validate(db *gorm.DB, toInsert bool) error {
 			validation.Field(&up.FirstName, validation.Length(0, 50)),
 			validation.Field(&up.LastName, validation.Length(0, 50)),
 			validation.Field(&up.UserID, validation.By(ValidateUserExistence(db, toInsert))),
-			validation.Field(&up.UserID, validation.By(ValidateUserProfileConstraint(db, toInsert, up.ID))),
+			validation.Field(&up.UserID, validation.By(ValidateUserProfileConstraint(db, toInsert, up.Id))),
 			)
 }
 
@@ -46,7 +46,7 @@ func ValidateUserProfileConstraint(db *gorm.DB, toInsert bool, profileId uint) v
 		if !toInsert {
 			db.Where("user_id = ? and id != ?", userId, profileId).First(lookupObj)
 
-			if lookupObj.ID != 0 {
+			if lookupObj.Id != 0 {
 				return errors.New("User profile already exists for user")
 			}
 		}

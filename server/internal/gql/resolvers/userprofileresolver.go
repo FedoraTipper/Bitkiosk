@@ -67,7 +67,7 @@ func (r *queryResolver) UserProfile(ctx context.Context, email *string) (*gqlMod
 //	var userProfile dbm.User
 //	db := r.ORM.DB.New()
 //
-//	db.Where("user_id = ?", &user.ID).First(&userProfile)
+//	db.Where("user_id = ?", &user.Id).First(&userProfile)
 //
 //	gqlUserProfile, err := tf.DBUserProfileToGQLUserProfile(&userProfile, user)
 //

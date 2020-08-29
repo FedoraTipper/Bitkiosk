@@ -11,5 +11,7 @@ type Query {
     #authenticate(authDetails: loginDetails!): AuthResponse!
 
     # reviews
-    loadReviewsForProduct(productSku: String!): [Review]!
+    loadTotalNumberOfReviewsForProduct(productSku: String!): Int!
+    loadReviewsForProduct(productSku: String!, limit: Int, offset: Int): [Review]!
+    loadReviewForUserWithProductSku(productSku: String!): Review
 }

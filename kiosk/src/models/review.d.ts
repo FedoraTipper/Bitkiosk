@@ -3,5 +3,6 @@ export interface IReview {
   productSKU: string
   textReview: string
   rating: number
+  anonymous: boolean
   createdAt: Date
 }

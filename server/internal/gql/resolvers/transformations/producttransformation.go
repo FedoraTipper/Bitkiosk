@@ -58,7 +58,7 @@ func DBProductToGQLProduct(p *product.Product, db *gorm.DB) (*gql.Product, error
 		UpdatedAt:      	date.FormatToSqlDate(p.UpdatedAt),
 	}
 
-	rating, reviewCount :=  review.LoadAverageRatingAndRatingCountForProduct(p.ID, db)
+	rating, reviewCount :=  review.LoadAverageRatingAndRatingCountForProduct(p.Id, db)
 
 	gqlProduct.Rating = rating
 	gqlProduct.ReviewCount = reviewCount

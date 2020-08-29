@@ -4,6 +4,7 @@ type Review {
     textReview: String!
     rating: Int!
     createdAt: String!
+    anonymous: Boolean!
 }
 
 input NewReview {

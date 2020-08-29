@@ -32,7 +32,7 @@ func (u *User) Validate(db *gorm.DB, toInsert bool) error {
 	return validation.ValidateStruct(
 			u,
 			validation.Field(&u.Email, validation.Required, is.Email),
-			validation.Field(&u.Email, validation.By(ValidateEmailUniqueness(db, toInsert, u.ID))),
+			validation.Field(&u.Email, validation.By(ValidateEmailUniqueness(db, toInsert, u.Id))),
 			validation.Field(&u.Role, validation.Required.When(u.Role < 0).Error("Role needs to be greater than 0")),
 		)
 }
@@ -48,9 +48,9 @@ func ValidateEmailUniqueness(db *gorm.DB, toInsert bool, id uint) validation.Rul
 			db.Where("email = ? and id != ?", email, id).First(&lookupObj)
 		}
 
-		if lookupObj.ID != 0 && toInsert {
+		if lookupObj.Id != 0 && toInsert {
 			return errors.New("Email address already in use")
-		} else if lookupObj.ID != 0 && !toInsert {
+		} else if lookupObj.Id != 0 && !toInsert {
 			return errors.New("New email address already in use")
 		}
 
@@ -66,7 +66,7 @@ func ValidateUserExistence(db *gorm.DB, toInsert bool) validation.RuleFunc {
 		if toInsert {
 			lookupObj = *LoadUserWithId(userId, db)
 
-			if lookupObj.ID == 0 {
+			if lookupObj.Id == 0 {
 				return errors.New("Unable to find user")
 			}
 		}
@@ -81,7 +81,7 @@ func ValidateAdminExists(db *gorm.DB, objectName string) validation.RuleFunc {
 
 		db.Where("id = ? and role > ?", adminId, session.AdminAuth).First(&lookupObj)
 
-		if lookupObj.ID != 0 {
+		if lookupObj.Id != 0 {
 			return errors.New("Invalid admin assigned to " + objectName)
 		}
 

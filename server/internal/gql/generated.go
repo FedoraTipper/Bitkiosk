@@ -67,13 +67,16 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		LoadActiveProducts    func(childComplexity int, limit *int, offset *int) int
-		LoadReviewsForProduct func(childComplexity int, productSku string) int
-		UserProfile           func(childComplexity int, email *string) int
-		Users                 func(childComplexity int, limit *int, offset *int) int
+		LoadActiveProducts                 func(childComplexity int, limit *int, offset *int) int
+		LoadReviewForUserWithProductSku    func(childComplexity int, productSku string) int
+		LoadReviewsForProduct              func(childComplexity int, productSku string, limit *int, offset *int) int
+		LoadTotalNumberOfReviewsForProduct func(childComplexity int, productSku string) int
+		UserProfile                        func(childComplexity int, email *string) int
+		Users                              func(childComplexity int, limit *int, offset *int) int
 	}
 
 	Review struct {
+		Anonymous       func(childComplexity int) int
 		CreatedAt       func(childComplexity int) int
 		ProductSku      func(childComplexity int) int
 		Rating          func(childComplexity int) int
@@ -108,7 +111,9 @@ type QueryResolver interface {
 	Users(ctx context.Context, limit *int, offset *int) ([]*models.User, error)
 	UserProfile(ctx context.Context, email *string) (*models.User, error)
 	LoadActiveProducts(ctx context.Context, limit *int, offset *int) ([]*models.Product, error)
-	LoadReviewsForProduct(ctx context.Context, productSku string) ([]*models.Review, error)
+	LoadTotalNumberOfReviewsForProduct(ctx context.Context, productSku string) (int, error)
+	LoadReviewsForProduct(ctx context.Context, productSku string, limit *int, offset *int) ([]*models.Review, error)
+	LoadReviewForUserWithProductSku(ctx context.Context, productSku string) (*models.Review, error)
 }
 
 type executableSchema struct {
@@ -277,6 +282,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.LoadActiveProducts(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
 
+	case "Query.loadReviewForUserWithProductSku":
+		if e.complexity.Query.LoadReviewForUserWithProductSku == nil {
+			break
+		}
+
+		args, err := ec.field_Query_loadReviewForUserWithProductSku_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.LoadReviewForUserWithProductSku(childComplexity, args["productSku"].(string)), true
+
 	case "Query.loadReviewsForProduct":
 		if e.complexity.Query.LoadReviewsForProduct == nil {
 			break
@@ -287,7 +304,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.LoadReviewsForProduct(childComplexity, args["productSku"].(string)), true
+		return e.complexity.Query.LoadReviewsForProduct(childComplexity, args["productSku"].(string), args["limit"].(*int), args["offset"].(*int)), true
+
+	case "Query.loadTotalNumberOfReviewsForProduct":
+		if e.complexity.Query.LoadTotalNumberOfReviewsForProduct == nil {
+			break
+		}
+
+		args, err := ec.field_Query_loadTotalNumberOfReviewsForProduct_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.LoadTotalNumberOfReviewsForProduct(childComplexity, args["productSku"].(string)), true
 
 	case "Query.userProfile":
 		if e.complexity.Query.UserProfile == nil {
@@ -312,6 +341,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Users(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
+
+	case "Review.anonymous":
+		if e.complexity.Review.Anonymous == nil {
+			break
+		}
+
+		return e.complexity.Review.Anonymous(childComplexity), true
 
 	case "Review.createdAt":
 		if e.complexity.Review.CreatedAt == nil {
@@ -503,6 +539,7 @@ var parsedSchema = gqlparser.MustLoadSchema(
 
     #Review
     createReview(input: NewReview): Review!
+    #updateReview(input: UpdatedReview!): Review!
 }`},
 	&ast.Source{Name: "internal/gql/schemas/product/product.graphql", Input: `type Product {
     SKU: String!
@@ -543,7 +580,9 @@ input NewProduct {
     #authenticate(authDetails: loginDetails!): AuthResponse!
 
     # reviews
-    loadReviewsForProduct(productSku: String!): [Review]!
+    loadTotalNumberOfReviewsForProduct(productSku: String!): Int!
+    loadReviewsForProduct(productSku: String!, limit: Int, offset: Int): [Review]!
+    loadReviewForUserWithProductSku(productSku: String!): Review
 }`},
 	&ast.Source{Name: "internal/gql/schemas/review/review.graphql", Input: `type Review {
     userDisplayName: String!
@@ -551,6 +590,7 @@ input NewProduct {
     textReview: String!
     rating: Int!
     createdAt: String!
+    anonymous: Boolean!
 }
 
 input NewReview {
@@ -687,7 +727,51 @@ func (ec *executionContext) field_Query_loadActiveProducts_args(ctx context.Cont
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_loadReviewForUserWithProductSku_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["productSku"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["productSku"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_loadReviewsForProduct_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["productSku"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["productSku"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["limit"]; ok {
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["offset"]; ok {
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["offset"] = arg2
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_loadTotalNumberOfReviewsForProduct_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -1550,6 +1634,50 @@ func (ec *executionContext) _Query_loadActiveProducts(ctx context.Context, field
 	return ec.marshalNProduct2ᚕᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐProduct(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_loadTotalNumberOfReviewsForProduct(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_loadTotalNumberOfReviewsForProduct_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().LoadTotalNumberOfReviewsForProduct(rctx, args["productSku"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_loadReviewsForProduct(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -1576,7 +1704,7 @@ func (ec *executionContext) _Query_loadReviewsForProduct(ctx context.Context, fi
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().LoadReviewsForProduct(rctx, args["productSku"].(string))
+		return ec.resolvers.Query().LoadReviewsForProduct(rctx, args["productSku"].(string), args["limit"].(*int), args["offset"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1592,6 +1720,47 @@ func (ec *executionContext) _Query_loadReviewsForProduct(ctx context.Context, fi
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNReview2ᚕᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐReview(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_loadReviewForUserWithProductSku(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_loadReviewForUserWithProductSku_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().LoadReviewForUserWithProductSku(rctx, args["productSku"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Review)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOReview2ᚖgithubᚗcomᚋfedoratipperᚋbitkioskᚋserverᚋinternalᚋgqlᚋmodelsᚐReview(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1852,6 +2021,43 @@ func (ec *executionContext) _Review_createdAt(ctx context.Context, field graphql
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Review_anonymous(ctx context.Context, field graphql.CollectedField, obj *models.Review) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Review",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Anonymous, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *models.User) (ret graphql.Marshaler) {
@@ -3714,6 +3920,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				return res
 			})
+		case "loadTotalNumberOfReviewsForProduct":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_loadTotalNumberOfReviewsForProduct(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
 		case "loadReviewsForProduct":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -3726,6 +3946,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
+				return res
+			})
+		case "loadReviewForUserWithProductSku":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_loadReviewForUserWithProductSku(ctx, field)
 				return res
 			})
 		case "__type":
@@ -3776,6 +4007,11 @@ func (ec *executionContext) _Review(ctx context.Context, sel ast.SelectionSet, o
 			}
 		case "createdAt":
 			out.Values[i] = ec._Review_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "anonymous":
+			out.Values[i] = ec._Review_anonymous(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

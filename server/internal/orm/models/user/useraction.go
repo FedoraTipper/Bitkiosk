@@ -20,10 +20,10 @@ func LoadUserWithId(id uint, db *gorm.DB) *User {
 	//	user = reflect.ValueOf(cacheObject).Interface().(models.User)
 	//}
 
-	//if user.ID == 0 {
+	//if user.Id == 0 {
 	db.Where("id = ?", id).Preload("UserProfile").Find(&user)
-		//if user.ID != 0 {
-		//	_ = redis.PutObjectInCache(user, strconv.Itoa(int(user.ID)))
+		//if user.Id != 0 {
+		//	_ = redis.PutObjectInCache(user, strconv.Itoa(int(user.Id)))
 		//}
 	//}
 

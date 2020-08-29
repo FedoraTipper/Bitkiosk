@@ -60,7 +60,7 @@ func AuthenticationHandler(orm *orm.ORM) gin.HandlerFunc {
 
 		db := orm.DB.New().Begin()
 
-		if dbErr := db.Where("email = ?", loginDetails.Identification).Find(&user); dbErr.Value == nil || user.ID == 0 {
+		if dbErr := db.Where("email = ?", loginDetails.Identification).Find(&user); dbErr.Value == nil || user.Id == 0 {
 			setAuthResponse(c, &authDetails)
 			return
 		}
@@ -72,7 +72,7 @@ func AuthenticationHandler(orm *orm.ORM) gin.HandlerFunc {
 			return
 		}
 
-		if dbErr := db.Where("auth_method_id = ? AND user_id = ?", authMethod.ID, user.ID).First(&storedUserAuthMatrix); dbErr.Value == nil || storedUserAuthMatrix.ID == 0 {
+		if dbErr := db.Where("auth_method_id = ? AND user_id = ?", authMethod.ID, user.Id).First(&storedUserAuthMatrix); dbErr.Value == nil || storedUserAuthMatrix.Id == 0 {
 			setAuthResponse(c, &authDetails)
 			return
 		}
@@ -90,7 +90,7 @@ func AuthenticationHandler(orm *orm.ORM) gin.HandlerFunc {
 
 			authLevel := session.AuthLevel{
 				AuthLevel: int(user.Role),
-				UID:       int(user.ID),
+				UID:       int(user.Id),
 			}
 
 			sessionToken, err := session.GenerateSession(ttl, authLevel)

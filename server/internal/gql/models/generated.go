@@ -51,6 +51,7 @@ type Review struct {
 	TextReview      string `json:"textReview"`
 	Rating          int    `json:"rating"`
 	CreatedAt       string `json:"createdAt"`
+	Anonymous       bool   `json:"anonymous"`
 }
 
 type UpdatedProfile struct {

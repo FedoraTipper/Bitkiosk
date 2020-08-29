@@ -43,7 +43,7 @@ func (tp *Product) Validate(db *gorm.DB, toInsert bool) error {
 		validation.Field(&tp.EndDate, validation.By(validateEndDate(tp.StartDate))),
 		validation.Field(&tp.Stock, validation.Min(0).Error("Stock count needs to be greater than 0")),
 		validation.Field(&tp.Price, validation.Min( float64(0)).Error("Price needs to be greater than 0")),
-		validation.Field(&tp.Sku, validation.By(validateSKUUniqueness(db, toInsert, tp.ID))),
+		validation.Field(&tp.Sku, validation.By(validateSKUUniqueness(db, toInsert, tp.Id))),
 		validation.Field(&tp.Sku, validation.By(validateSKUString())),
 		)
 }
@@ -58,7 +58,7 @@ func ValidateProductSkuExistence(db *gorm.DB) validation.RuleFunc {
 
 		product := LoadProductFromSku(sku, db)
 
-		if product.ID == 0 {
+		if product.Id == 0 {
 			return errors.New("Unable to find product with SKU " + sku)
 		}
 
@@ -76,7 +76,7 @@ func ValidateProductExistence(db *gorm.DB) validation.RuleFunc {
 
 		product := LoadProductWithId(id, db)
 
-		if product.ID == 0 {
+		if product.Id == 0 {
 			logger.Errorfn("ValidateProductExistence", errors.New("Unable to find product with id " + string(id)))
 			return errors.New("Unable to find product")
 		}
@@ -128,7 +128,7 @@ func validateSKUUniqueness(db *gorm.DB, toInsert bool, productId uint) validatio
 		if !toInsert {
 			db.Where("sku = ? and id != ?", sku, productId).First(&lookupObj)
 
-			if lookupObj.ID != 0 {
+			if lookupObj.Id != 0 {
 				return errors.New("SKU identifiers already exists. Please enter a unique SKU for this product")
 			}
 		}

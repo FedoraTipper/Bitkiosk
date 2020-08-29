@@ -18,7 +18,10 @@ type Review struct {
 	Anonymous   bool		`gorm:"default:False;"`
 }
 
-const DISPLAY_NAME_ANONYMOUS string = "Anonymous"
+const (
+	DISPLAY_NAME_ANONYMOUS string = "Anonymous"
+	LOOKUP_LIMIT string = "REVIEW_LIMIT"
+)
 
 func (toCreate *Review) Create(db *gorm.DB) (*gorm.DB, error) {
 	return models.CreateObject(toCreate, toCreate, db)
@@ -39,34 +42,34 @@ func (tr *Review) Validate(db *gorm.DB, toInsert bool) error {
 	)
 
 	if err == nil {
-		err = validation.Validate(userAndProductPayload{userID: tr.UserID, productID: tr.ProductID}, validation.By(ValidateReviewUniqueness(db, toInsert)))
+		err = validation.Validate(userAndProductPayload{userId: tr.UserID, productId: tr.ProductID}, validation.By(ValidateReviewUniqueness(db, toInsert)))
 	}
 
 	return err
 }
 
 type userAndProductPayload struct {
-	userID uint
-	productID uint
+	userId    uint
+	productId uint
 }
 
 func ValidateReviewUniqueness(db *gorm.DB, toInsert bool) validation.RuleFunc {
 	return func(value interface{}) error {
 		payload, _ := value.(userAndProductPayload)
 
-		if payload.productID == 0 {
+		if payload.productId == 0 {
 			return errors.New("Missing product for review")
 		}
 
-		if payload.userID == 0 {
+		if payload.userId == 0 {
 			return errors.New("Missing user for review")
 		}
 
-		review := LoadProductReviewForUser(payload.productID, payload.userID, db)
+		review := LoadProductReviewForUser(payload.productId, payload.userId, db)
 
-		if review.ID != 0 && toInsert {
+		if review.Id != 0 && toInsert {
 			return errors.New("Only one review per product is allowed")
-		} else if review.ID == 0 && !toInsert {
+		} else if review.Id == 0 && !toInsert {
 			return errors.New("Unable to find current review to update")
 		}
 
