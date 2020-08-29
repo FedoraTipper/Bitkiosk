@@ -12,7 +12,7 @@ import (
 func DBUserToGQLUser(i *user.User) (o *gql.User, err error) {
 	o = &gql.User{
 		Email:     i.Email,
-		Role:	   int(i.Role),
+		Role:	   i.Role,
 		CreatedAt: date.FormatToSqlDate(&i.CreatedAt),
 		UpdatedAt: date.FormatToSqlDate(i.UpdatedAt),
 	}

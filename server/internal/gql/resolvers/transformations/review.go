@@ -11,7 +11,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func GQLReviewToDBReview(i *gql.NewReview, productId uint, userId uint) (*review.Review, error) {
+func GQLReviewToDBReview(i *gql.NewReview, productId int, userId int) (*review.Review, error) {
 
 	isAnonymousReview := false; if i.Anonymous != nil {
 		isAnonymousReview = *i.Anonymous
@@ -29,7 +29,7 @@ func GQLReviewToDBReview(i *gql.NewReview, productId uint, userId uint) (*review
 }
 
 func DBReviewToGQLReview(i *review.Review, db *gorm.DB) (*gql.Review, error) {
-	userDisplayName := review.DISPLAY_NAME_ANONYMOUS
+	userDisplayName := review.DisplayNameAnonymous
 
 	if !i.Anonymous {
 		userProfile := user.LoadUserProfile(i.UserID, db)

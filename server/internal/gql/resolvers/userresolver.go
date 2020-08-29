@@ -79,7 +79,7 @@ func userCreate(r *mutationResolver, input models.NewUser) (string, error) {
 	if err == nil {
 		tokenDigest := digest.GetDigest(input.Token, uint(input.AuthMethodID))
 
-		tx, err = (&auth.AuthenticationMatrix{UserID: userDbo.Id, AuthMethodID: uint(input.AuthMethodID), Token: tokenDigest}).Create(tx)
+		tx, err = (&auth.AuthenticationMatrix{UserID: userDbo.Id, AuthMethodID: input.AuthMethodID, Token: tokenDigest}).Create(tx)
 
 		if err == nil {
 			userProfileDbo := &user.UserProfile{

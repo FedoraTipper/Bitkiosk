@@ -12,7 +12,7 @@ func LoadUserWithEmail(email string, db *gorm.DB) *User {
 	return &user
 }
 
-func LoadUserWithId(id uint, db *gorm.DB) *User {
+func LoadUserWithId(id int, db *gorm.DB) *User {
 	var user User
 
 	//cacheObject := redis.LoadObjectFromCache(models.User{}, strconv.Itoa(int(id)))

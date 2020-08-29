@@ -12,7 +12,7 @@ func LoadActiveProducts(db *gorm.DB) []Product {
 	return activeProducts
 }
 
-func LoadProductWithId(id uint, db *gorm.DB) Product {
+func LoadProductWithId(id int, db *gorm.DB) Product {
 	var product Product
 
 	db.Where("id = ?", id).First(&product)

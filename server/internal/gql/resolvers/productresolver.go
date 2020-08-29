@@ -33,7 +33,7 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input *models.NewP
 	authLevel, err := authhandler.GetAuthLevelFromSession(ctx)
 
 	if authLevel != nil && authLevel.AuthLevel == session.AdminAuth {
-		return createProduct(r, input, uint(authLevel.UID))
+		return createProduct(r, input, authLevel.UID)
 	} else {
 		if err != nil {
 			logger.Error("Unable to resolve auth level with Products resolver. \n" + err.Error())
@@ -43,7 +43,7 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input *models.NewP
 	return nil, errors.New("not authenticated for query")
 }
 
-func createProduct(r *mutationResolver, input *models.NewProduct, adminId uint) (*models.Product, error){
+func createProduct(r *mutationResolver, input *models.NewProduct, adminId int) (*models.Product, error){
 	var gqlReturn *models.Product
 
 	productDbo, err := tf.GQLProductToDBProduct(input, adminId)

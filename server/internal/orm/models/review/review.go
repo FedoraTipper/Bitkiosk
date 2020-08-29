@@ -11,16 +11,16 @@ import (
 
 type Review struct {
 	models.BaseModelSoftDelete
-	UserID		uint        `gorm:"not null;index:user_review_idx" db:"user_id"`
-	ProductID 	uint		`gorm:"not null;index:product_review_idx" db:"product_id"`
+	UserID		int        `gorm:"not null;index:user_review_idx" db:"user_id"`
+	ProductID 	int		`gorm:"not null;index:product_review_idx" db:"product_id"`
 	TextReview	string		`gorm:"text" db:"text_review"`
 	Rating	 	int			`gorm:"not null;" db:"rating"`
 	Anonymous   bool		`gorm:"default:False;"`
 }
 
 const (
-	DISPLAY_NAME_ANONYMOUS string = "Anonymous"
-	LOOKUP_LIMIT string = "REVIEW_LIMIT"
+	DisplayNameAnonymous string = "Anonymous"
+	LookupLimit          string = "REVIEW_LIMIT"
 )
 
 func (toCreate *Review) Create(db *gorm.DB) (*gorm.DB, error) {
@@ -49,8 +49,8 @@ func (tr *Review) Validate(db *gorm.DB, toInsert bool) error {
 }
 
 type userAndProductPayload struct {
-	userId    uint
-	productId uint
+	userId    int
+	productId int
 }
 
 func ValidateReviewUniqueness(db *gorm.DB, toInsert bool) validation.RuleFunc {

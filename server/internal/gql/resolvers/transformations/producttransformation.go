@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func GQLProductToDBProduct(i *gql.NewProduct, adminId uint) (*product.Product, error) {
+func GQLProductToDBProduct(i *gql.NewProduct, adminId int) (*product.Product, error) {
 	dboProduct := &product.Product{
 		Name:             *stringUtil.FormatNameString(&i.Name),
 		Sku:              *stringUtil.FormatWhiteSpace(&i.Sku),

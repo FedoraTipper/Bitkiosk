@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func LoadUserProfile(userId uint, db *gorm.DB) *UserProfile {
+func LoadUserProfile(userId int, db *gorm.DB) *UserProfile {
 	var profile UserProfile
 
 	//profile = redis.LoadObjectFromCache(UserProfile{}, strconv.Itoa(int(userId))).(UserProfile)
@@ -14,7 +14,7 @@ func LoadUserProfile(userId uint, db *gorm.DB) *UserProfile {
 	if profile.Id == 0 {
 		db.Where("user_id = ?", userId).Find(&profile)
 		if profile.Id != 0 {
-			_ = redis.PutObjectInCache(profile, strconv.Itoa(int(userId)))
+			_ = redis.PutObjectInCache(profile, strconv.Itoa(userId))
 		}
 	}
 

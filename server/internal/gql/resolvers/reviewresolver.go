@@ -22,7 +22,7 @@ func (r *mutationResolver) CreateReview(ctx context.Context, input *models.NewRe
 	authLevel, err := authhandler.GetAuthLevelFromSession(ctx)
 
 	if authLevel != nil && authLevel.AuthLevel >= session.UserAuth {
-		return createReview(r, input, uint(authLevel.UID), uint(authLevel.AuthLevel))
+		return createReview(r, input, authLevel.UID, authLevel.AuthLevel)
 	} else {
 		if err != nil {
 			logger.Error("Unable to resolve auth level with Products resolver. \n" + err.Error())
@@ -46,7 +46,7 @@ func (r *queryResolver) LoadReviewsForProduct(ctx context.Context, productSku st
 		return nil, errors.New("Invalid product found for sku " + productSku)
 	}
 
-	configLimit := utils.MustGetInt(review.LOOKUP_LIMIT)
+	configLimit := utils.MustGetInt(review.LookupLimit)
 
 	if limit == nil || *limit > configLimit {
 		limit = &configLimit
@@ -85,7 +85,7 @@ func (r *queryResolver) LoadReviewForUserWithProductSku(ctx context.Context, pro
 	if authLevel != nil && authLevel.AuthLevel >= session.UserAuth {
 		db := r.ORM.DB
 
-		reviewByUser, err := findUserSubmittedReview(productSku, uint(authLevel.UID), db)
+		reviewByUser, err := findUserSubmittedReview(productSku, authLevel.UID, db)
 
 		if err != nil {
 			return nil, err
@@ -105,7 +105,7 @@ func (r *queryResolver) LoadReviewForUserWithProductSku(ctx context.Context, pro
 	return gqlReview, nil
 }
 
-func findUserSubmittedReview(productSku string, userId uint, db *gorm.DB) (reviewByUser review.Review, _ error) {
+func findUserSubmittedReview(productSku string, userId int, db *gorm.DB) (reviewByUser review.Review, _ error) {
 	if productSku == "" {
 		return reviewByUser, errors.New("Please provide a valid SKU for the product")
 	}
@@ -121,7 +121,7 @@ func findUserSubmittedReview(productSku string, userId uint, db *gorm.DB) (revie
 	return reviewByUser, nil
 }
 
-func createReview(r *mutationResolver, input *models.NewReview, ctxUserId uint, ctxAuthLevel uint) (*models.Review, error){
+func createReview(r *mutationResolver, input *models.NewReview, ctxUserId int, ctxAuthLevel int) (*models.Review, error) {
 	var gqlReturn *models.Review
 
 	if input.ProductSku == "" {

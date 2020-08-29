@@ -9,7 +9,7 @@ import (
 
 type UserProfile struct {
 	models.BaseModelSoftDelete
-	UserID uint `db:"user_id" gorm:"index:user_id_profile_idx"`
+	UserID int `db:"user_id" gorm:"index:user_id_profile_idx"`
 	FirstName *string  `db:"first_name"`
 	LastName  *string  `db:"last_name"`
 }
@@ -38,7 +38,7 @@ func (up *UserProfile) Validate(db *gorm.DB, toInsert bool) error {
 
 
 // One profile per user - Used when updating
-func ValidateUserProfileConstraint(db *gorm.DB, toInsert bool, profileId uint) validation.RuleFunc {
+func ValidateUserProfileConstraint(db *gorm.DB, toInsert bool, profileId int) validation.RuleFunc {
 	return func(value interface{}) error {
 		userId, _ := value.(uint)
 		var lookupObj User

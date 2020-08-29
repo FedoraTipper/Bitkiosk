@@ -12,7 +12,7 @@ import (
 type User struct {
 	models.BaseModelSoftDelete
 	Email       string `db:"email" gorm:"unique_index;varchar(150);index:user_email_idx"`
-	Role        uint   `db:"role" gorm:"not null; default:1"`
+	Role        int   `db:"role" gorm:"not null; default:1"`
 	UserProfile *UserProfile
 }
 
@@ -37,7 +37,7 @@ func (u *User) Validate(db *gorm.DB, toInsert bool) error {
 		)
 }
 
-func ValidateEmailUniqueness(db *gorm.DB, toInsert bool, id uint) validation.RuleFunc {
+func ValidateEmailUniqueness(db *gorm.DB, toInsert bool, id int) validation.RuleFunc {
 	return func(value interface{}) error {
 		email, _ := value.(string)
 		var lookupObj User
@@ -60,7 +60,7 @@ func ValidateEmailUniqueness(db *gorm.DB, toInsert bool, id uint) validation.Rul
 
 func ValidateUserExistence(db *gorm.DB, toInsert bool) validation.RuleFunc {
 	return func(value interface{}) error {
-		userId, _ := value.(uint)
+		userId, _ := value.(int)
 		var lookupObj User
 
 		if toInsert {
@@ -76,7 +76,7 @@ func ValidateUserExistence(db *gorm.DB, toInsert bool) validation.RuleFunc {
 
 func ValidateAdminExists(db *gorm.DB, objectName string) validation.RuleFunc {
 	return func(value interface{}) error {
-		adminId, _ := value.(uint)
+		adminId, _ := value.(int)
 		var lookupObj User
 
 		db.Where("id = ? and role > ?", adminId, session.AdminAuth).First(&lookupObj)

@@ -49,7 +49,7 @@ func (r *queryResolver) UserProfile(ctx context.Context, email *string) (*gqlMod
 			return nil, errors.New("Unable to access user information")
 		}
 	} else {
-		userToFind = user.LoadUserWithId(uint(authLevel.UID), r.ORM.DB)
+		userToFind = user.LoadUserWithId(authLevel.UID, r.ORM.DB)
 	}
 
 	if userToFind == nil {

@@ -19,7 +19,7 @@ type Product struct {
 	Price            float64    `db:"price"`
 	Stock            int        `db:"stock"`
 	Sku              string     `db:"sku" gorm:"unique_index;index:product_sku_idx"`
-	AdminId          uint       `db:"admin_id"`
+	AdminId          int       `db:"admin_id"`
 	StartDate        *time.Time `db:"start_date"`
 	EndDate          *time.Time `db:"end_date"`
 }
@@ -68,7 +68,7 @@ func ValidateProductSkuExistence(db *gorm.DB) validation.RuleFunc {
 
 func ValidateProductExistence(db *gorm.DB) validation.RuleFunc {
 	return func(value interface{}) error {
-		id, _ := value.(uint)
+		id, _ := value.(int)
 
 		if id == 0 {
 			return errors.New("Missing product id")
@@ -120,7 +120,7 @@ func validateSKUString() validation.RuleFunc {
 }
 
 
-func validateSKUUniqueness(db *gorm.DB, toInsert bool, productId uint) validation.RuleFunc {
+func validateSKUUniqueness(db *gorm.DB, toInsert bool, productId int) validation.RuleFunc {
 	return func(value interface{}) error {
 		sku, _ := value.(string)
 		var lookupObj Product
