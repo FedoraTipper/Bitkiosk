@@ -18,7 +18,7 @@
     "@mdi/svg": "^5.3.45",
     "@types/js-cookie": "^2.2.4",
     "@types/sprintf-js": "^1.1.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "buefy": "^0.8.10",
     "core-js": "^3.4.4",
     "email-validator": "^2.0.4",
